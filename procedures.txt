@@ -1,0 +1,579 @@
+//createUser
+create procedure CreateUser
+@name nvarchar(256),
+@password nvarchar(256)
+as
+begin
+	begin try
+	insert into AppUser(username,password) values (@name,@password)
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+//Login
+create procedure Login
+	@name nvarchar(256)
+as
+begin
+	select * from AppUser where username = @name
+end
+
+
+//changePassword
+alter procedure ChangePassword
+@id int,
+@password nvarchar(256)
+as
+begin 
+	begin try
+	update AppUser set password = @password where id = @id
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+//getUserOrganisation
+alter procedure getUserOrganisation
+@userID int
+as
+begin 
+select Organisation.id,Organisation.name,Organisation.password,Organisation.creatorID,@userID
+from Organisation inner join OrganisationMember on Organisation.id = OrganisationMember.organisationID
+and OrganisationMember.userID=@userID and OrganisationMember.deleted != 1
+end
+
+
+//leaveorganisation
+create procedure LeaveOrganisation
+@userID int
+as
+begin 
+	update OrganisationMember set deleted = 1 where userID=@userID
+end
+
+
+//GetAllOrganisations
+create procedure GetAllOrganisations
+as
+begin 
+	select * from Organisation
+end
+
+//JoinOrganisation
+alter procedure JoinOrganisation
+@organisationID int,
+@userID int
+as
+begin 
+	if exists (select * from OrganisationMember where OrganisationMember.organisationID=@organisationID and OrganisationMember.userID=@userID and OrganisationMember.deleted=1)
+	update OrganisationMember set deleted = 0 where OrganisationMember.organisationID=@organisationID and OrganisationMember.userID=@userID and OrganisationMember.deleted=1
+	else
+	INSERT INTO OrganisationMember(userID,organisationID,deleted) values(@userID,@organisationID,0)
+	return @@ROWCOUNT
+end
+
+
+//CreateOrganisation
+create procedure CreateOrganisation
+@organisationName nvarchar(256),
+@organisationPassword nvarchar(256),
+@creatorID int
+as
+begin 
+	INSERT INTO Organisation(name,password,creatorID) values(@organisationName,@organisationPassword,@creatorID)
+	declare @last int
+	select @last = @@IDENTITY
+	INSERT INTO OrganisationMember(userID,organisationID,deleted) values(@creatorID,@last,0)
+	return @@ROWCOUNT
+end
+
+
+//GetOrganisationMembers
+alter procedure GetOrganisationMembers
+@organisationID int
+as
+begin 
+	select OrganisationMember.id,AppUser.username from OrganisationMember
+	inner join AppUser on AppUser.id = OrganisationMember.userID where OrganisationMember.organisationID = @organisationID and OrganisationMember.deleted=0
+end
+
+//GetOrganisationMemberIDByUserID
+alter procedure [dbo].[GetOrganisationMemberIDByUserID]
+@userID int
+as
+begin 
+	select * from OrganisationMember where OrganisationMember.deleted = 0 and OrganisationMember.userID=@userID
+end
+
+
+//CreateProject
+alter procedure [dbo].[CreateProject]
+@title nvarchar(256),
+@description nvarchar(256),
+@startDate date,
+@endDate date,
+@organisationMemberID nvarchar(256)
+as
+begin 
+	begin try
+	insert into Project(title,decription,startDate,endDate,isDone,creatorID) values(@title,@description,@startDate,@endDate,0,null);
+	declare @projectID int
+	set @projectID = @@IDENTITY
+	insert into ProjectMember(projectID,organisationMemberID,deleted) values(@projectID,@organisationMemberID,0)
+	declare @creatorID int = @@IDENTITY
+	update Project set creatorID = @creatorID where Project.id=@projectID
+	return @projectID
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+//addProjectMember
+create procedure AddProjectMember
+@organisationMemberID int,
+@projectID int
+as 
+begin
+	if exists (select * from ProjectMember where ProjectMember.organisationMemberID=@organisationMemberID and ProjectMember.projectID = @projectID and ProjectMember.deleted = 1)
+	update ProjectMember set deleted = 0 where ProjectMember.organisationMemberID=@organisationMemberID and ProjectMember.projectID = @projectID and ProjectMember.deleted = 1
+	else
+	INSERT INTO ProjectMember(projectID,organisationMemberID,deleted) values(@projectID,@organisationMemberID,0)
+	return @@ROWCOUNT
+end
+
+
+//GetAllUserProjects
+CREATE procedure [dbo].[GetAllUserProjects]
+@userID int
+as
+begin 
+	select Project.id,Project.title,Project.decription as description,Project.startDate,Project.endDate,Project.isDone,Project.creatorID
+	from Project join ProjectMember on Project.id = ProjectMember.projectID
+	join OrganisationMember on OrganisationMember.id = ProjectMember.organisationMemberID and OrganisationMember.userID=@userID
+	and OrganisationMember.deleted != 1 and ProjectMember.deleted!=1
+end
+	
+
+
+//UpdateOrganisationName
+alter procedure UpdateOrganisationName
+@organisationID int,
+@newName nvarchar(256)
+as
+begin 
+	begin try
+	update Organisation set Organisation.name = @newName where Organisation.id = @organisationID
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+
+//GetAllProjectMembers
+alter procedure GetAllProjectMembers
+@projectID int
+as
+begin 
+	select AppUser.id,AppUser.username,OrganisationMember.organisationID,ProjectMember.deleted from
+	ProjectMember join OrganisationMember on OrganisationMember.id = ProjectMember.organisationMemberID
+	join AppUser on AppUser.id = OrganisationMember.userID and ProjectMember.deleted=0 and ProjectMember.projectID = @projectID
+end 
+
+
+//DeleteOrganisationMember
+create procedure DeleteOrganisationMember
+@memberID int
+as
+begin 
+	update OrganisationMember set OrganisationMember.deleted = 1 where OrganisationMember.id = @memberID
+	return @@ROWCOUNT
+end 
+
+
+//InsertParentSubTask
+create procedure InsertParentSubTask
+@title nvarchar(256),
+@projectID int
+as
+begin 
+	begin try
+	Insert into SubTask(parent,projectID,title,isDone,isTotallyDone)
+	values(null,@projectID,@title,0,0)
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+
+//GetAllParentTasks
+alter procedure GetAllParentTasks
+@projectID int
+as
+begin 
+	select * from SubTask where SubTask.projectID = @projectID and parent is null
+end 
+
+
+//InsertChildSubTasks
+ALTER procedure InsertChildSubTask
+@title nvarchar(256),
+@projectID int,
+@parentID int
+as
+begin 
+	begin try
+	insert into SubTask(parent,projectID,title,isDone,isTotallyDone) values (@parentID,@projectID,@title,0,0)
+	return @@IDENTITY
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//InsertSubTaskExecutor
+create procedure InsertSubTaskExecutor
+@subtaskID nvarchar(256),
+@executorID int
+as
+begin 
+	begin try
+	Insert into SubTaskExecutor(subTaskID,executorID)
+	values(@subtaskID,@executorID)
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//GetChildSubTasksInfo
+create procedure GetChildSubTasksInfo
+@projectID int
+as
+begin 
+	select * from SubTask where SubTask.projectID = @projectID and parent != null
+end 
+
+
+
+//GetChildSubTasksInfo
+create procedure GetChildSubTasksInfo
+@projectID int
+as
+begin 
+	select SubTaskExecutor.executorID,SubTask.id,AppUser.username,SubTask.title,SubTask.isDone,SubTask.isTotallyDone,SubTask.parent
+	from SubTask inner join SubTaskExecutor on SubTaskExecutor.subTaskID=SubTask.id inner join ProjectMember on ProjectMember.id = SubTaskExecutor.executorID
+	inner join OrganisationMember on OrganisationMember.id = ProjectMember.organisationMemberID inner join AppUser on AppUser.id = OrganisationMember.userID
+	and SubTask.projectID = @projectID
+end 
+
+
+//GetProjectCreatorUserID
+alter procedure GetProjectCreatorUserID
+@projectID int
+as
+begin 
+	Select AppUser.id,AppUser.username,AppUser.password from AppUser inner join OrganisationMember on OrganisationMember.userID = AppUser.id
+	inner join ProjectMember on ProjectMember.organisationMemberID = OrganisationMember.id 
+	inner join Project on Project.creatorID = ProjectMember.id and Project.id=@projectID
+end 
+
+
+//OfferChanges
+create procedure OfferChanges
+@SubTaskID int,
+@isDone bit
+as
+begin 
+	begin try
+	update SubTask set isDone=@isDone where SubTask.id = @SubTaskID
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//CommitChanges
+create procedure CommitChanges
+@SubTaskID int,
+@isDone bit
+as
+begin 
+	begin try
+	update SubTask set isDone=@isDone,isTotallyDone=@isDone where SubTask.id = @SubTaskID
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//SelectOrganisationMemberRows
+alter procedure SelectOrganisationMemberRows
+@organisationID int
+as
+begin 
+select * from OrganisationMember where OrganisationMember.organisationID=@organisationID
+end
+
+
+
+//SelectProjectMemberRows
+alter procedure SelectProjectMemberRows
+@userID int
+as
+begin 
+select ProjectMember.id,ProjectMember.organisationMemberID,ProjectMember.deleted,ProjectMember.projectID from ProjectMember join OrganisationMember on OrganisationMember.id = ProjectMember.organisationMemberID
+where ProjectMember.projectID in 
+(select ProjectMember.projectID from ProjectMember pm join OrganisationMember om on pm.organisationMemberID=om.id join AppUser au on au.id=om.userID and au.id=@userID)
+end
+
+//AddProjectMember
+create procedure AddProjectMember
+@organisationMemberID int,
+@projectID int
+as 
+begin
+	if exists (select * from ProjectMember where ProjectMember.organisationMemberID=@organisationMemberID and ProjectMember.projectID = @projectID and ProjectMember.deleted = 1)
+	update ProjectMember set deleted = 0 where ProjectMember.organisationMemberID=@organisationMemberID and ProjectMember.projectID = @projectID and ProjectMember.deleted = 1
+	else
+	INSERT INTO ProjectMember(projectID,organisationMemberID,deleted) values(@projectID,@organisationMemberID,0)
+	return @@ROWCOUNT
+end
+
+
+
+//SelectProjectRows
+alter procedure SelectProjectRows
+@userID int
+as
+begin 
+Select Project.id,Project.title,Project.decription,Project.startDate,Project.endDate,Project.isDone,Project.creatorID from Project
+inner join ProjectMember on ProjectMember.projectID = Project.id
+inner join OrganisationMember on OrganisationMember.id=ProjectMember.organisationMemberID
+inner join AppUser on AppUser.id=OrganisationMember.userID and AppUser.id=@userID
+end
+
+
+
+//SelectSubTasksRows
+alter procedure SelectSubTasksRows
+@userID int
+as
+begin 
+select SubTask.id,SubTask.isDone,SubTask.isTotallyDone,SubTask.parent,SubTask.projectID,SubTask.title
+from Subtask
+where SubTask.projectID in 
+(select pm.projectID from ProjectMember pm join OrganisationMember om on pm.organisationMemberID=om.id join AppUser au on au.id=om.userID and au.id=12)
+end
+
+//SelectSubTasksExecutorsRows
+create procedure SelectSubTasksExecutorRows
+@userID int
+as
+begin 
+select SubTaskExecutor.id,SubTaskExecutor.executorID,SubTaskExecutor.subTaskID
+from SubTaskExecutor join SubTask on SubTask.id = SubTaskExecutor.subTaskID
+where SubTask.projectID in 
+(select pm.projectID from ProjectMember pm join OrganisationMember om on pm.organisationMemberID=om.id join AppUser au on au.id=om.userID and au.id=@userID)
+end
+
+
+//SelectAllOrganisationUsersRow
+alter procedure SelectAllOrganisationUsersRows
+@organisationID int
+as
+begin 
+	select AppUser.id,AppUser.username,AppUser.password from OrganisationMember join AppUser on AppUser.id=OrganisationMember.userID
+	where OrganisationMember.organisationID = @organisationID
+end 
+
+
+
+
+//WEB
+//getAllCreatorProjects
+alter procedure getAllCreatorProjects
+@userID int
+as 
+begin 
+	Select Project.id,Project.title,Project.decription as description, Project.startDate,Project.endDate,Project.isDone,Project.creatorID from Project
+	where Project.creatorID in 
+	(select pm.id from ProjectMember pm join OrganisationMember om on pm.organisationMemberID=om.id join AppUser au on au.id=om.userID where au.id=@userID)
+end
+
+//getAllProjectMembersWeb
+
+//GetAllChildSubTasks
+alter procedure GetAllChildSubTasks
+@projectID int
+as 
+begin 
+	Select * from SubTask where SubTask.projectID=@projectID and SubTask.parent is not null
+end
+
+//ProlongProjectDate
+create procedure ProlongProjectDate
+@projectID int,
+@endDate date
+as 
+begin 
+	begin try
+	update Project set endDate=@endDate where Project.id=@projectID
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+//EndProject
+create procedure EndProject
+@projectID int
+as 
+begin 
+	begin try
+	update Project set isDone=1 where Project.id=@projectID
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end
+
+//deleteMember
+create procedure deleteMember
+@id int
+as
+begin 
+	begin try
+	update ProjectMember set deleted = 1 where ProjectMember.id = @id
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+//DeleteChildSubTask
+create procedure DeleteChilSubTask
+@id int
+as
+begin 
+	begin try
+	delete from SubTask where SubTask.id = @id
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+//DeleteParentSubTask
+alter procedure DeleteParentSubTask
+@id int
+as
+begin 
+	begin try
+	delete from SubTaskExecutor where SubTaskExecutor.subTaskID in (select sb.id from SubTask sb where sb.parent=@id)
+delete from SubTask where SubTask.parent = @id
+delete from SubTask where SubTask.id = @id
+
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//DeleteProject
+create procedure DeleteProject
+@id int
+as
+begin 
+	begin try
+	delete from SubTaskExecutor where SubTaskExecutor.id in (select SubTaskExecutor.id from SubTaskExecutor join SubTask on SubTask.id=SubTaskExecutor.subTaskID and SubTask.projectID=@id)
+	delete from SubTask where SubTask.projectID = @id
+	update Project set creatorID = null where Project.id=@id
+	delete from ProjectMember where projectID = @id
+	delete from Project where id = @id
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//UploadParentSubtask
+create procedure UploadParentSubTask
+@title nvarchar(256),
+@projectID int
+as
+begin 
+	begin try
+	Insert into SubTask(parent,projectID,title,isDone,isTotallyDone)
+	values(null,@projectID,@title,0,0)
+	return @@IDENTITY
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//uploadhildSubtask
+create procedure UploadChildSubTask
+@title nvarchar(256),
+@projectID int,
+@parentID int,
+@isDone bit,
+@isTotallyDone bit,
+@ExecutorID int
+as
+begin 
+	begin try
+	insert into SubTask(parent,projectID,title,isDone,isTotallyDone) values (@parentID,@projectID,@title,@isDone,@isTotallyDone)
+	declare @subTaskID int
+	set @subTaskID = @@IDENTITY
+	insert into SubTaskExecutor(executorID,subTaskID) values (@ExecutorID,@subTaskID)
+	return @@IDENTITY
+	end try
+	begin catch
+	return -1
+	end catch
+end 
+
+
+//UploadSimplyChangedSubTask
+create procedure UploadSimplyChangedSubTask
+@id int,
+@isDone int,
+@isTotallyDone int
+as
+begin 
+	begin try
+	update SubTask set isDone = @isDone where id = @id
+	update SubTask set isTotallyDone = @isDone where id=@id
+	return 1
+	end try
+	begin catch
+	return -1
+	end catch
+end 
