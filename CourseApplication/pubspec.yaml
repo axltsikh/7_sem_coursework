@@ -39,6 +39,7 @@ dependencies:
   flutter_date_range_picker: 0.0.14
   shared_preferences: ^2.1.1
   crypto: ^3.0.3
+  syncfusion_flutter_calendar: ^25.1.35
 
 dev_dependencies:
   flutter_test:

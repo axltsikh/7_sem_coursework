@@ -36,17 +36,17 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
         width: 250,
         height: 200,
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              Text("Добавление задачи"),
-              Divider(thickness: 1,color: Colors.blue,),
-              SizedBox(height: 15,),
+              const Text("Добавление задачи"),
+              const Divider(thickness: 1,color: Colors.blue,),
+              const SizedBox(height: 15,),
               CupertinoTextField(
                 placeholder: "Название задачи",
                 controller: controller,
               ),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               CupertinoButtonTemplate(
                   "Сохранить",
                   returnSubTask

@@ -1,12 +1,12 @@
 import 'dart:convert';
-
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Utility/Colors.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-
+import '../Utility/ButtonStyles.dart';
 import '../Utility/Utility.dart';
 
 class RegisterPage extends StatefulWidget{
@@ -18,6 +18,7 @@ class _RegisterPage extends State<RegisterPage>{
   final passwordFieldController = TextEditingController();
   final repeatPasswordFieldController = TextEditingController();
   String errorText = "";
+
   void registerClick() async {
     if(loginFieldController.text.length<3){
       Fluttertoast.showToast(msg: "Минимальная длина логина - 3 символа");
@@ -31,6 +32,7 @@ class _RegisterPage extends State<RegisterPage>{
     }
     await createUser();
   }
+
   Future<void> createUser() async{
     final response = await http.post(Uri.parse("http://${Utility.url}/user/create"),headers: <String,String>{
       'Content-Type': 'application/json;charset=UTF-8',
@@ -46,53 +48,40 @@ class _RegisterPage extends State<RegisterPage>{
     }
 
   }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Регистрация"),
-      ),
+      backgroundColor: MyColors.backgroundColor,
+      appBar: WidgetTemplates.getAppBarWithReturnButton("Регистрация", context),
       body: Center(
           child: Container(
-            width: 250,
-            margin: const EdgeInsets.only(top: 150),
+            width: 350,
             child: Column(
               children: [
+                SizedBox(height: 200,),
+                WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
+                const SizedBox(height: 15,),
+                WidgetTemplates.getPasswordTextField(passwordFieldController,true, "Пароль"),
+                const SizedBox(height: 15,),
+                WidgetTemplates.getPasswordTextField(repeatPasswordFieldController,true, "Повторите пароль"),
+                SizedBox(height: 150,),
                 Container(
-                  margin: const EdgeInsets.only(top: 25),
-                  child: CupertinoTextField(
-                    placeholder: "Имя пользователя",
-                    controller: loginFieldController,
-                    clearButtonMode: OverlayVisibilityMode.always,
-
-                  )
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 15),
-                  child: CupertinoTextField(
-                    placeholder: "Пароль",
-                    controller: passwordFieldController,
-                    clearButtonMode: OverlayVisibilityMode.always,
-                    obscureText: true,
-                  )
-                ),
-                Container(
-                  margin: const EdgeInsets.only(top: 15),
-                  child: CupertinoTextField(
-                    placeholder: "Повторите пароль",
-                    controller: repeatPasswordFieldController,
-                    clearButtonMode: OverlayVisibilityMode.always,
-                    obscureText: true,
-                  )
-                ),
-                Container(
-                    margin: const EdgeInsets.only(top: 15),
-                    child: CupertinoButtonTemplate(
-                      "Создать аккаунт",
-                        registerClick
-                    )
-                ),
-
+                  width: 400,
+                  height: 60,
+                  margin: EdgeInsets.all(15),
+                  child: TextButton(
+                    onPressed: registerClick,
+                    style: ButtonStyles.mainButton(),
+                    child: Text("Создать аккаунт",
+                        style: TextStyle(
+                            fontFamily: 'SanFranciscoPro',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: MyColors.backgroundColor)),
+                  ),
+                )
               ],
             ),
           )

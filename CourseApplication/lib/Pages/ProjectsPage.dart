@@ -6,19 +6,22 @@ import 'package:course_application/CustomModels/CustomProject.dart';
 import 'package:course_application/Pages/SingleProjectPage.dart';
 import 'package:course_application/Pages/SyncDialog.dart';
 import 'package:course_application/Utility/Utility.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../CustomModels/GetUserOrganisation.dart';
+import '../Utility/Colors.dart';
 
 class ProjectsPage extends StatefulWidget{
   ProjectsPage(){}
   @override
   State<StatefulWidget> createState() => _ProjectsPageState();
 }
-class _ProjectsPageState extends State<ProjectsPage>{
+class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMixin{
   StreamSubscription<ConnectivityResult>? a;
+  late final TabController _tabController= TabController(length: 3, vsync: this);
   bool firstinit=true;
   _ProjectsPageState(){
     getOrganisation();
@@ -79,6 +82,10 @@ class _ProjectsPageState extends State<ProjectsPage>{
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+  @override
   void didUpdateWidget(covariant ProjectsPage oldWidget) {
     print("update");
     GetProjects();
@@ -126,16 +133,20 @@ class _ProjectsPageState extends State<ProjectsPage>{
     if(userOrganisation.id==-1){
       return Text("");
     }else{
-      return FloatingActionButton(
+      return Container(
+        margin: EdgeInsets.only(bottom: 60,left: 0),
+        child: FloatingActionButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(50)),
+          ),
           onPressed: (){
             Navigator.of(context).push(
                 CupertinoPageRoute(builder: (context) => CreateProjectPage())
             ).then((value){GetProjects();});
           },
-          backgroundColor: Colors.blue,
-          child: Container(
-            child: const Icon(Icons.add),
-          )
+          backgroundColor: MyColors.firstAccent,
+          child: Icon(Icons.add,color: Colors.white,),
+        ),
       );
     }
   }
@@ -145,7 +156,6 @@ class _ProjectsPageState extends State<ProjectsPage>{
     getOrganisation();
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
-      print("Get projects from local database request");
       var buffer = await Utility.databaseHandler.getProjectsFromLocal();
       setState(() {
         projects = buffer.where((element) => element.isDone ==false).toList();
@@ -171,86 +181,168 @@ class _ProjectsPageState extends State<ProjectsPage>{
     firstinit=false;
   }
 
+  Widget getAllProjects(){
+    return SizedBox(
+      height: 250,
+      child: Card(
+        color: MyColors.secondBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ListView.builder(
+          shrinkWrap: true,
+            itemCount: projects.length,
+            itemBuilder:(BuildContext context, int index){
+              CustomProject project = projects[index];
+              return Column(
+                children: [
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (builder) => SingleProjectPage(project)));
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: MyColors.firstAccent,
+                      child: Icon(
+                        Icons.person,
+                        color: MyColors.secondBackground,
+                      ),
+                    ),
+                    title: Text(project.Title),
+                    subtitle: Text(project.Description),),
+                ],
+              );
+            }
+        ),
+      ),
+    );
+  }
+  Widget getCurrentProjects(){
+    return SizedBox(
+      height: 250,
+      child: Card(
+        color: MyColors.secondBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: projects.where((element) => !element.isDone).toList().length,
+            itemBuilder:(BuildContext context, int index){
+              CustomProject project = projects.where((element) => !element.isDone).toList()[index];
+              return Column(
+                children: [
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (builder) => SingleProjectPage(project)));
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: MyColors.firstAccent,
+                      child: Icon(
+                        Icons.person,
+                        color: MyColors.secondBackground,
+                      ),
+                    ),
+                    title: Text(project.Title),
+                    subtitle: Text(project.Description),),
+                ],
+              );
+            }
+        ),
+      ),
+    );
+  }
+  Widget getFinishedProjects(){
+    return SizedBox(
+      height: 250,
+      child: Card(
+        color: MyColors.secondBackground,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: projects.where((element) => element.isDone).toList().length,
+            itemBuilder:(BuildContext context, int index){
+              CustomProject project = projects.where((element) => element.isDone).toList()[index];
+              return Column(
+                children: [
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (builder) => SingleProjectPage(project)));
+                    },
+                    leading: CircleAvatar(
+                      backgroundColor: MyColors.firstAccent,
+                      child: Icon(
+                        Icons.person,
+                        color: MyColors.secondBackground,
+                      ),
+                    ),
+                    title: Text(project.Title),
+                    subtitle: Text(project.Description),),
+                ],
+              );
+            }
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MyColors.backgroundColor,
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
-      floatingActionButton: Container(
-        margin: const EdgeInsets.only(bottom: 75),
-        child: getFloatingButton()
-      ),
-      appBar: AppBar(
-        title: const Text("Все проекты"),
+      floatingActionButton: getFloatingButton(),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(135),
+        child: Container(
+          margin: EdgeInsets.only(top: 50),
+          child: Column(
+            children: [
+              Container(
+                width: 410,
+                height: 65,
+                child: Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(35)
+                    ),
+                    color: Colors.white,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("Проекты",textAlign: TextAlign.center,style: TextStyle(
+                            fontSize: 20
+                        ),)
+                      ],
+                    )
+                ),
+              ),
+              TabBar(
+                dividerHeight: 0,
+                  indicatorColor: MyColors.firstAccent,
+                  controller: _tabController,
+                  labelColor: MyColors.firstAccent,
+                  tabs: const [
+                    Tab(text: "Все",),
+                    Tab(text: "Текущие",),
+                    Tab(text: "Завершенные",)
+                  ]),
+            ],
+          )
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: GetProjects,
         child: Padding(
-          padding: const EdgeInsets.all(5),
-          child: ListView.builder(
-            itemCount: projects.length,
-            itemBuilder: (BuildContext context,int index){
-              return Column(
+          padding: const EdgeInsets.only(left:15,right: 15,top: 5,bottom: 25),
+          child:Column(
+            children:[ SizedBox(
+              height: 600,
+              child: TabBarView(
+                controller: _tabController,
                 children: [
-                  getTextWidget(index),
-                  Card(
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          side: const BorderSide(
-                            color: Colors.blue,
-                          ),
-                          borderRadius: BorderRadius.circular(35)
-                      ),
-                      child: SizedBox(
-                        height: 150,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(35),
-                          onTap: (){
-                            Navigator.of(context).push(
-                                CupertinoPageRoute(builder: (context) => SingleProjectPage(projects[index]))
-                            );
-                          },
-                          child: Column(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(projects[index].Title,style: TextStyle(color: Colors.black,fontSize: 20))
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  children: [
-                                    Container(
-                                        margin: EdgeInsets.only(left: 25),
-                                        child: Text(projects[index].Description,style: TextStyle(color: Colors.black))
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text(projects[index].StartDate.substring(0,10)),
-                                    const Text("                            "),
-                                    Text(projects[index].EndDate.substring(0,10))
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      )
-                  )
+                  getAllProjects(),
+                  getCurrentProjects(),
+                  getFinishedProjects()
                 ],
-              );
-            },
-          ),
+              ),
+            )]
+          )
         ),
       )
 

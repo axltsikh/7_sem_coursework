@@ -9,7 +9,7 @@ import '../Utility/Utility.dart';
 
 
 class AddProjectMemberDialog extends StatefulWidget{
-  AddProjectMemberDialog(this.projectMembers){}
+  AddProjectMemberDialog(this.projectMembers, {super.key});
   List<CustomProjectMember> projectMembers;
   @override
   State<StatefulWidget> createState() => _AddProjectMemberDialog(projectMembers);

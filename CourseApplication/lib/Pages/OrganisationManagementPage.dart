@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/GetUserOrganisation.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../CustomModels/CustomOrganisationMember.dart';
+import '../Utility/Colors.dart';
 import '../Utility/Utility.dart';
 
 class OrganisationManagementPage extends StatefulWidget{
@@ -111,75 +113,62 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(organisation.name),
-      ),
+      backgroundColor: MyColors.backgroundColor,
+      appBar: WidgetTemplates.getAppBarWithReturnButton(organisation.name, context),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(height: 25,),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 50
-              ),
-              child: Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15)
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: CupertinoTextField.borderless(
-                      textAlign: TextAlign.center,
-                      controller: controller,
-                    ),
-                  )
-              ),
-            ),
-            Container(height: 25,),
-            CupertinoButtonTemplate("Сохранить изменения", () {changeOrgName();}),
-            Container(height: 25,),
-            Padding(
-              padding: EdgeInsets.only(left: 15,right: 15),
-              child: Divider(thickness: 1,color: Colors.blue,),
-            ),
             Container(height: 15,),
-            Text("Управление участниками"),
-            Container(height: 25,),
-            ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: 500,
-                  minHeight: 150
-                ),
-              child: ListView.builder(
-                  itemCount: organisationMembers.length,
-                  itemBuilder: (BuildContext context,int index){
-                    return Container(
-                      child: Card(
-                          elevation: 10,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)
-                          ),
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: Row(
+            Padding(
+              padding: EdgeInsets.only(left: 5,right: 5,top: 5),
+              child: Container(
+                height: 650,
+                child: Card(
+                  color: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: organisationMembers.length+1,
+                      itemBuilder:(BuildContext context, int index){
+                        if(index==0){
+                          return Column(
+                            // margin: EdgeInsets.only(top: 15),
+                              children:[
+                                SizedBox(height: 15,),
+                                Text("Список участников",textAlign: TextAlign.center,style: TextStyle(
+                                    fontSize: 18,fontWeight: FontWeight.w500),),
+                                SizedBox(height: 15,),
+                              ]
+                          );
+                        }
+                        CustomOrganisationMember member = organisationMembers[index-1];
+                        return Column(
+                          children: [
+                            ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: MyColors.secondBackground,
+                                child: Icon(
+                                  Icons.person,
+                                  color: MyColors.firstAccent,
+                                ),
+                              ),
+                              title: Text(member.username),
+                              trailing: (organisation.creatorID == Utility.user.id) ? IconButton(
+                                icon: Icon(Icons.close,color: MyColors.fourthAccent,),
+                                onPressed: (){
 
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Container(width: 10,),
-                                Text(organisationMembers[index].username),
-                                Container(width: 250,),
-                                IconButton(onPressed: (){
-                                  deleteOrganisationMember(organisationMembers[index]);
-                                }, icon: Icon(Icons.highlight_remove_outlined))
-                              ],
+                                  deleteOrganisationMember(member);
+                                },
+                              ) : Text(""),
                             ),
-                          )
-                      ),
-                    );
-                  }
+                          ],
+                        );
+                      }
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

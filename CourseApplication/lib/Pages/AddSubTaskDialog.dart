@@ -113,7 +113,7 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
                   context: context,
                   builder: (BuildContext context) {
                     return AlertDialog(
-                      shape: RoundedRectangleBorder(
+                      shape: const RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(
                               Radius.circular(30))),
                       contentPadding: EdgeInsets.only(top: 10.0),

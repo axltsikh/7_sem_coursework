@@ -1,12 +1,11 @@
 import 'dart:convert';
-import 'dart:html';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:oktoast/oktoast.dart';
-import 'Pages/MainPage.dart';
+import 'Pages/HomePage.dart';
 import 'Utility.dart';
 
 void main() {
@@ -54,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Utility.user.id=int.parse(response.body);
       Utility.user.Username=loginFieldController.text;
       Utility.user.Password=md5.convert(utf8.encode(passwordFieldController.text)).toString();
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>MainPage()));
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>const HomePage()));
     }else{
       print("wrong something");
       showToast("Неверное имя пользователя или пароль!",position: ToastPosition.bottom,);
@@ -63,7 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Вход"),),
+        appBar: AppBar(title: const Text("Вход"),),
         body: Center(
             child: Align(
                 alignment: Alignment.center,
@@ -92,9 +91,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       Container(
                           margin: const EdgeInsets.only(top: 15),
                           child: CupertinoButton.filled(
-                              child: Text("Войти"),
                               onPressed: login,
                               borderRadius: BorderRadius.circular(15),
+                              child: const Text("Войти"),
                           )
                       ),
                     ],

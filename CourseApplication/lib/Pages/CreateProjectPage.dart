@@ -1,12 +1,16 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
+import 'package:course_application/CustomModels/OrganisationMember.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import '../Utility/ButtonStyles.dart';
+import '../Utility/Colors.dart';
 import 'AddProjectMemberDialog.dart';
 import '../CustomModels/CustomProjectMember.dart';
 import '../Utility/Utility.dart';
@@ -84,201 +88,179 @@ class _CreateProjectPage extends State<CreateProjectPage> {
       Fluttertoast.showToast(msg: "Произошла ошибка!");
     }
   }
+  void chooseProjectDates()async{
+    var a = await showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+            content: SizedBox(
+              height: 370,
+              child: Column(
+                children: [
+                  DateRangePickerWidget(
+                    theme: CalendarTheme(
+                      selectedColor: Colors.blue,
+                      dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
+                      inRangeColor: Color(0xFFD9EDFA),
+                      inRangeTextStyle: TextStyle(color: Colors.blue),
+                      selectedTextStyle: TextStyle(color: Colors.white),
+                      todayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                      defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
+                      radius: 10,
+                      tileSize: 33,
+                      disabledTextStyle: TextStyle(color: Colors.grey),
+                    ),
+                    doubleMonth: false,
+                    height: 310,
+                    initialDisplayedDate:DateTime.now(),
+                    onDateRangeChanged: (dateRange){
+                      setState(() {
+                        startDate = dateRange!.start.toString().substring(0,10);
+                        endDate = dateRange!.end.toString().substring(0,10);
+                      });
+                    },
+                  ),
+                  SizedBox(
+                    width: 220,
+                    child: TextButton(
+                      onPressed: (){
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Подтвердить выбор",style: TextStyle(
+                          fontFamily: 'SanFranciscoPro',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: MyColors.backgroundColor),),
+                      style: ButtonStyles.mainButton(),
+                    ),
+                  )
+                ],
+              ),
+            )
+          );
+        }
+    );
+  }
+
+
+
   //
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Создание проекта"),
-      ),
+      backgroundColor: MyColors.backgroundColor,
+      appBar: WidgetTemplates.getAppBarWithReturnButton("Создание проекта",context),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(10),
           child: Column(
             children: [
-              Card(
-                  elevation: 15,
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.blue,
-                      ),
-                      borderRadius: BorderRadius.circular(20)
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        minHeight: 50,
-                        minWidth: 250
-                    ),
-                    child: CupertinoTextField.borderless(
-                      textAlign: TextAlign.center,
-                      placeholder: "Название",
-                      controller: titleController,
-                    ),
-                  )
-              ),
-              Card(
-                  elevation: 15,
-                  shadowColor: Colors.grey,
-
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.blue,
-                      ),
-                      borderRadius: BorderRadius.circular(40)
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        minHeight: 150,
-                        minWidth: 250
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          margin: EdgeInsets.only(left: 25,top: 25),
-                          child: CupertinoTextField.borderless(
-                            maxLines: null,
-                            controller: descriptionController,
-                            placeholder: "Введите описание",
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Card(
-                      elevation: 15,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(
-                            minHeight: 50,
-                            minWidth: 90
-                        ),
-                        child: Align(
-                            alignment: Alignment.center,
-                            child: Container(
-                                child: Text(startDate)
-                            )
-                        ),
-                      )
-                  ),
-                  Card(
-                      elevation: 15,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)
-                      ),
-                      child: SizedBox(
-                          child: CupertinoButtonTemplate(
-                            "Выбрать даты",
-                              () async{
+              WidgetTemplates.getTextField(titleController, "Название проекта"),
+              SizedBox(height: 15,),
+              WidgetTemplates.getTextField(descriptionController, "Описание проекта"),
+              SizedBox(height: 5,),
+              Padding(
+                padding: EdgeInsets.only(left: 5,right: 5,top: 5),
+                child: Container(
+                  height: 360,
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: organisationMembers.length+2,
+                        itemBuilder:(BuildContext context, int index){
+                          if(index==0){
+                            return Column(
+                              // margin: EdgeInsets.only(top: 15),
+                                children:[
+                                  SizedBox(height: 15,),
+                                  Text("Список участников",textAlign: TextAlign.center,style: TextStyle(
+                                      fontSize: 18,fontWeight: FontWeight.w500),),
+                                  SizedBox(height: 15,)
+                                ]
+                            );
+                          }
+                          if(index==organisationMembers.length+1){
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: Colors.white,
+                                child: Icon(
+                                  Icons.add,
+                                  color: MyColors.firstAccent,
+                                ),
+                              ),
+                              onTap: ()async{
                                 var a = await showDialog(
                                     context: context,
                                     builder: (BuildContext context){
                                       return AlertDialog(
-                                          content:  DateRangePickerWidget(
-                                            theme: CalendarTheme(
-                                              selectedColor: Colors.blue,
-                                              dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
-                                              inRangeColor: Color(0xFFD9EDFA),
-                                              inRangeTextStyle: TextStyle(color: Colors.blue),
-                                              selectedTextStyle: TextStyle(color: Colors.white),
-                                              todayTextStyle: TextStyle(fontWeight: FontWeight.bold),
-                                              defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
-                                              radius: 10,
-                                              tileSize: 33,
-                                              disabledTextStyle: TextStyle(color: Colors.grey),
-                                            ),
-                                            doubleMonth: false,
-                                            height: 360,
-                                            initialDisplayedDate:DateTime.now(),
-                                            onDateRangeChanged: (dateRange){
-                                              setState(() {
-                                                startDate = dateRange!.start.toString().substring(0,10);
-                                                endDate = dateRange!.end.toString().substring(0,10);
-                                              });
-                                            },
-                                          ),
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(Radius.circular(30))),
+                                        contentPadding: EdgeInsets.only(top: 10.0),
+                                        content: AddProjectMemberDialog(projectMembers),
                                       );
                                     }
                                 );
-                              }
-                          )
-                      )
+                                setState(() {
+                                  if(a!=null){
+                                    projectMembers.add(a);
+                                  }
+                                });
+                              },
+                              title: Text("Добавить участника"),
+                            );
+                          }
+                          CustomOrganisationMember member = organisationMembers[index-1];
+                          return Column(
+                            children: [
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: MyColors.firstAccent,
+                                  child: Icon(
+                                    Icons.person,
+                                    color: MyColors.secondBackground,
+                                  ),
+                                ),
+                                title: Text(member.username),
+                              ),
+                            ],
+                          );
+                        }
+                    ),
                   ),
-                  Card(
-                      elevation: 15,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)
-                      ),
-                      child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                              minHeight: 50,
-                              minWidth:90
-                          ),
-                          child: Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                  child: Text(endDate)
-                              )
-                          ),
-                      )
-                  ),
-                ],
-              ),
-              SizedBox(height: 25,),
-              Divider(),
-              Align(
-                alignment: Alignment.center,
-                child: Text("Управление участниками"),
-              ),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: 150
-                ),
-                child: ListView.builder(
-                  itemCount: projectMembers.length,
-                  itemBuilder: (BuildContext context,int index){
-                    return Card(
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(50)
-                      ),
-                      child: SizedBox(
-                        height: 40,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(projectMembers[index].username as String),
-                        ),
-                      ),
-                    );
-                  },
                 ),
               ),
-              CupertinoButtonTemplate("Добавить участника", () async{
-                var a = await showDialog(
-                    context: context,
-                    builder: (BuildContext context){
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(30))),
-                        contentPadding: EdgeInsets.only(top: 10.0),
-                        content: AddProjectMemberDialog(projectMembers),
-                      );
-                    }
-                );
-                setState(() {
-                  if(a!=null){
-                    projectMembers.add(a);
-                  }
-                });
-              }),
-              Container(height: 25,),
-              CupertinoButtonTemplate("Создать проект", createProject)
+              Container(
+                width: 350,
+                height: 60,
+                padding: EdgeInsets.only(top: 15),
+                child: TextButton(
+                  child: Text("Выбрать даты проекта",style: TextStyle(
+                      fontFamily: 'SanFranciscoPro',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: MyColors.firstAccent),),
+                  onPressed: chooseProjectDates,
+                  style: ButtonStyles.secondaryButton(),
+                ),
+              ),
+              Container(height: 5,),
+              Container(
+                width: 350,
+                height: 60,
+                padding: EdgeInsets.only(top: 15),
+                child: TextButton(
+                  child: Text("Создать проект",style: TextStyle(
+                      fontFamily: 'SanFranciscoPro',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: MyColors.backgroundColor),),
+                  onPressed: createProject,
+                  style: ButtonStyles.mainButton(),
+                ),
+              )
             ],
           ),
         )

@@ -6,7 +6,7 @@ app.use(express.json())
 app.use(cors())
 app.listen(1234)
 const sqlConfig ={
-    server: 'DESKTOP-1L560B9',
+    server: 'DESKTOP-5KMASHN',
     database: 'CourseWorkDatabase',
     authentication: {
         type: "default",
@@ -22,7 +22,10 @@ const sqlConfig ={
 }
 let open = async()=>{
     sql.connect(sqlConfig, function (err) {
-        if (err) console.log(err);
+        if (err) console.log(err)
+        else{
+            console.log("connect");
+        }
     });
 }
 
@@ -249,15 +252,7 @@ app.get("/project/getAllProjectMembers",function(req,response){
         response.end(JSON.stringify(result.recordset));
     })
 })
-// app.post("/profile/getUserOrganisation",function(req,response){
-//     console.log("proejcts call");
-//     request = new sql.Request();
-//     request.input('userID',req.query.userID);
-//     request.execute('GetAllUserProjects',(err,result)=>{
-//         response.statusCode=200
-//         response.end(JSON.stringify(result.recordset));
-//     })
-// })
+
 app.delete("/organisation/removeMember",function(req,response){
     const request = new sql.Request();
     request.input('memberID',req.query.id);

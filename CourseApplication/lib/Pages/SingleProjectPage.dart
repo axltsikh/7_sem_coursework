@@ -8,6 +8,7 @@ import 'package:course_application/CustomModels/CustomProject.dart';
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:course_application/CustomModels/SubTaskModel.dart';
 import 'package:course_application/Utility/Utility.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:course_application/manyUsageTemplate/CheckBoxBuilder.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../Models/SubTask.dart';
 import '../Models/User.dart';
+import '../Utility/Colors.dart';
 
 class SingleProjectPage extends StatefulWidget{
   SingleProjectPage(this.project, {super.key}){}
@@ -259,13 +261,9 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
       if (projectCreator.id != Utility.user.id) {
         return Text("");
       }
-      return CupertinoButton.filled(
-        borderRadius: BorderRadius.circular(15),
-        padding: EdgeInsets.fromLTRB(20,0,20,0),
-        child: Text(
-          "Добавить участника", style: TextStyle(fontSize: 15),textAlign: TextAlign.center,
-        ),
-        onPressed: () async {
+      return ListTile(
+        title: Text("Добавить участника"),
+        onTap: () async {
           var a = await showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -281,25 +279,9 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
           if (a != null) {
             addProjectMember(a);
           }
-        });
-      return CupertinoButtonTemplate(
-          "Добавить\nучастника", () async {
-        var a = await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(30))),
-                contentPadding: const EdgeInsets.only(top: 10.0),
-                content: AddProjectMemberDialog(projectMembers),
-              );
-            }
-        );
-        if (a != null) {
-          addProjectMember(a);
-        }
-      });
+        },
+        leading: Icon(Icons.add,color: MyColors.firstAccent,),
+      );
     }
 
   }
@@ -318,208 +300,128 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     if(project.isDone==true){
       return Text("");
     }
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: 150
-      ),
-      // width: 150,
-      child: CupertinoButton.filled(
-          borderRadius: BorderRadius.circular(15),
-          padding: EdgeInsets.fromLTRB(20,0,20,0),
-          child: Text(
-            "Добавить задачу", style: TextStyle(fontSize: 15),textAlign: TextAlign.center,
-          ),
-
-          onPressed: () async {
-            var a = await showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(30))),
-                    contentPadding: const EdgeInsets.only(top: 10.0),
-                    content: AddParentTaskDialog(project),
-                  );
-                }
-            );
-            if (a != null) {
-              addParentSubTask(a);
+    return ListTile(
+      leading: Icon(Icons.add,color: MyColors.firstAccent,),
+      title: Text("Добавить задачу"),
+      onTap: () async {
+        var a = await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(30))),
+                contentPadding: const EdgeInsets.only(top: 10.0),
+                content: AddParentTaskDialog(project),
+              );
             }
-          },
-
-      ),
+        );
+        if (a != null) {
+          addParentSubTask(a);
+        }
+      },
     );
   }
   Widget tasksList(){
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: parentSubTasks.length+1,
-      itemBuilder: (BuildContext context, int mainTaskIndex) {
-        if(mainTaskIndex == parentSubTasks.length){
-          return addTaskButton();
-        }
-        return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Card(
-                  elevation: 7,
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.blue,
-                      ),
-                      borderRadius: BorderRadius.circular(15)
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        minHeight: 50,
-                      maxWidth: 300
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment
-                          .spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(width: 15,),
-                            Text(parentSubTasks[mainTaskIndex].title),
-                          ],
-                        ),
-                        IconButton(
-                          onPressed: () async{
-                            var a = await showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(15))),
-                                    contentPadding: const EdgeInsets.only(top: 10.0),
-                                    content: AddSubTaskDialog(project,projectMembers,parentSubTasks[mainTaskIndex].id),
-                                  );
-                                }
+    return Container(
+      height: 550,
+      child: Card(
+        elevation: 0,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: parentSubTasks.length+1,
+          itemBuilder: (BuildContext context, int mainTaskIndex) {
+            if(mainTaskIndex == parentSubTasks.length){
+              return addTaskButton();
+            }
+            return Column(
+              children: [
+                ListTile(
+                  title: Text(parentSubTasks[mainTaskIndex].title,style: TextStyle(
+                    color: MyColors.textColor
+                  ),),
+                  trailing: IconButton(
+                    icon: Icon(Icons.add),
+                    onPressed: () async{
+                      var a = await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              shape: const RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(15))),
+                              contentPadding: const EdgeInsets.only(top: 10.0),
+                              content: AddSubTaskDialog(project,projectMembers,parentSubTasks[mainTaskIndex].id),
                             );
-                            if (a != null) {
-                              if(a==true){
-                                InitializeProject();
-                              }
-                            }
-                          },
-                          icon: const Icon(Icons.add),
-                        )
-                      ],
-                    ),
-                  )
-              ),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
-                itemBuilder: (BuildContext context,
-                    int subTaskIndex) {
-                  return Row(
-                    children: [
-                      Card(
-                          shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                color: Colors.blue,
-                              ),
-                              borderRadius: BorderRadius
-                                  .circular(10)
-                          ),
-                          elevation: 7,
-                          child: Align(
-                            alignment: Alignment.center,
-                            child: ConstrainedBox(
-                                constraints: const BoxConstraints(
-                                    minHeight: 25,
-                                  minWidth: 150,
-                                  maxWidth: 150
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title),
-                                )
-                            ),
-                          )
-                      ),
-                      Card(
-                          elevation: 7,
-                          shape: RoundedRectangleBorder(
-                              side: const BorderSide(
-                                color: Colors.blue,
-                              ),
-                              borderRadius: BorderRadius
-                                  .circular(10)
-                          ),
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(
-                                minHeight: 35,
-                                minWidth: 100,
-                              maxWidth: 100
-                            ),
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username),
-                            ),
-                          )
-                      ),
-                      CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
-                    ],
-                  );
-                },
-              )
-            ]
-        );
-      },
+                          }
+                      );
+                      if (a != null) {
+                        if(a==true){
+                          InitializeProject();
+                        }
+                      }
+                    },
+                  ),
+                ),
+                ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
+                  itemBuilder: (BuildContext context,int subTaskIndex){
+                    return
+                      Container(
+                        width: 150,
+                        child:  ListTile(
+                          title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title),
+                          subtitle: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username),
+                          trailing: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
+                        ),
+                      );
+                  },
+                ),
+                Divider(
+                  thickness: 1,
+                  color: Colors.grey,
+                )
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
   Widget membersList(){
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: projectMembers.length+1,
-      itemBuilder: (BuildContext context, int index) {
-        if(index == projectMembers.length){
-          return addMemberButton();
-        }
-        return ConstrainedBox(
-          constraints: const BoxConstraints(
-              minHeight: 40,
-              maxWidth: 100
-          ),
-          child: Card(
-            elevation: 7,
-            shape: RoundedRectangleBorder(
-                side: const BorderSide(
-                  color: Colors.blue,
-                ),
-                borderRadius: BorderRadius.circular(10)
-            ),
-            child: Align(
-              alignment: Alignment.center,
-              child: Text(projectMembers[index].username,style: TextStyle(fontSize:17),),
-
-            ),
-          ),
-        );
-      },
+    return Container(
+      height: 550,
+      child: Card(
+        elevation: 0,
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: projectMembers.length+1,
+          itemBuilder: (BuildContext context, int index) {
+            if(index == projectMembers.length){
+              return addMemberButton();
+            }
+            return ListTile(
+              title: Text(projectMembers[index].username),
+              leading: Icon(Icons.person,color: MyColors.firstAccent,),
+            );
+          },
+        ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: MyColors.backgroundColor,
       floatingActionButton: Container(
         margin: EdgeInsets.only(bottom: 55),
         child: footerButton(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      appBar: AppBar(
-        title: Text(project.Title ?? ""),
-        actions: [
-          IconButton(onPressed: InitializeProject, icon: Icon(Icons.refresh))
-        ],
-      ),
+      appBar: WidgetTemplates.getAppBarWithReturnButton(project.Title, context),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.all(5),
@@ -527,64 +429,11 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-                elevation: 10,
-                shape: RoundedRectangleBorder(
-                    side: const BorderSide(
-                      color: Colors.blue,
-                    ),
-                    borderRadius: BorderRadius.circular(20)
-                ),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                      minHeight: 50,
-                      minWidth: 150
-                  ),
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(project.Title),
-                  ),
-                ),
-
-              ),
               Container(height: 5,),
-              Card(
-                  elevation: 10,
-                  shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.blue,
-                      ),
-                      borderRadius: BorderRadius.circular(40)
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                        minHeight: 150
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: Text(project.Description),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text(project.StartDate.substring(0, 10),
-                                style: const TextStyle(color: Colors.black)),
-                            const Text(
-                                "                       "),
-                            Text(project.EndDate.substring(0, 10),
-                                style: const TextStyle(color: Colors.black))
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-              ),
               Container(margin: const EdgeInsets.only(top: 25),),
               TabBar(
-                  labelColor: Colors.blue,
+                indicatorColor: MyColors.firstAccent,
+                  labelColor: MyColors.firstAccent,
                   unselectedLabelColor: Colors.black,
                   controller: tabController,
                   tabs: [
@@ -601,7 +450,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
               SizedBox(height: 5,),
               Container(
                 width: MediaQuery.of(context).size.width,
-                height: 300,
+                height: 550,
                 child: TabBarView(
                   controller: tabController,
                   children: [

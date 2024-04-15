@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Pages/MainPage.dart';
 import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:course_application/Pages/registerPage.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,17 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'Models/User.dart';
+import 'Utility/ButtonStyles.dart';
+import 'Utility/Colors.dart';
 
 void main() async{
-
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Trello?'),
+      home: const MyHomePage(title: 'TaskMate'),
     );
   }
 }
@@ -43,7 +42,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  bool isLoading = true;
   _MyHomePageState(){
     SharedPreferences.getInstance().then((value)async{
       final int? id = value.getInt("id");
@@ -71,8 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  bool isLoading = true;
   final loginFieldController = TextEditingController();
   final passwordFieldController = TextEditingController();
+  bool obscurePassword = true;
+
   void loginClick() async{
     await login();
   }
@@ -151,49 +152,54 @@ class _MyHomePageState extends State<MyHomePage> {
         child: CircularProgressIndicator(),
       );
     }else{
-      return Center(
-          child: Align(
-              alignment: Alignment.center,
-              child: Container(
-                width: 250,
-                margin: const EdgeInsets.only(top: 150),
-                child: Column(
-                  children: [
-                    Container(
-                        margin: const EdgeInsets.only(top: 25),
-                        child: CupertinoTextField(
-                          placeholder: "Имя пользователя",
-                          controller: loginFieldController,
-                          clearButtonMode: OverlayVisibilityMode.always,
-                        )
-                    ),
-                    Container(
-                        margin: const EdgeInsets.only(top: 15),
-                        child: CupertinoTextField(
-                          placeholder: "Пароль",
-                          obscureText: true,
-                          controller: passwordFieldController,
-                          clearButtonMode: OverlayVisibilityMode.always,
-                        )
-                    ),
-                    Container(
-                        margin: const EdgeInsets.only(top: 15),
-                        child: CupertinoButtonTemplate(
-                            "Войти",
-                            loginClick
-                        )
-                    ),
-                    Container(
-                        margin: const EdgeInsets.only(top: 15),
-                        child: CupertinoButtonTemplate(
-                            "Создать аккаунт",
-                            registerClick
-                        )
-                    ),
-                  ],
-                ),
-              )
-          )
+      return SingleChildScrollView(
+        child: Center(
+            child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  width: 350,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 250,),
+                      WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
+                      SizedBox(height: 15,),
+                      WidgetTemplates.getPasswordTextField(passwordFieldController, obscurePassword,"Пароль"),
+                      SizedBox(height: 150,),
+                      Container(
+                          width: 350,
+                          height: 60,
+                          margin: const EdgeInsets.only(top: 15),
+                          child: TextButton(
+                            onPressed: login,
+                            style: ButtonStyles.mainButton(),
+                            child: Text("Войти",
+                                style: TextStyle(
+                                    fontFamily: 'SanFranciscoPro',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: MyColors.backgroundColor)),
+                          )
+                      ),
+                      Container(
+                          width: 400,
+                          height: 60,
+                          margin: const EdgeInsets.only(top: 15),
+                          child: TextButton(
+                            onPressed: registerClick,
+                            style: ButtonStyles.secondaryButton(),
+                            child: Text("Создать аккаунт",
+                                style: TextStyle(
+                                    fontFamily: 'SanFranciscoPro',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: MyColors.firstAccent)),
+                          )
+                      ),
+                    ],
+                  ),
+                )
+            )
+        ),
       );
     }
   }
@@ -201,9 +207,8 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      backgroundColor: MyColors.backgroundColor,
+      appBar: WidgetTemplates.getAppBar("TaskMate"),
       body: getBody()
     );
   }

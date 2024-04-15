@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 
 class AddSubTaskExecutorDialog extends StatefulWidget{
-  AddSubTaskExecutorDialog(this.projectMembers){}
+  AddSubTaskExecutorDialog(this.projectMembers, {super.key});
   List<CustomProjectMember> projectMembers;
   @override
   State<StatefulWidget> createState() => _AddSubTaskExecutorDialog(projectMembers);

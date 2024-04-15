@@ -2,22 +2,20 @@ import 'dart:convert';
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:oktoast/oktoast.dart';
-// import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-import 'package:wave/config.dart';
-import 'package:wave/wave.dart';
 import 'package:web_application/Models/SubTask.dart';
 import 'dart:html' as html;
 import '../Models/CustomProject.dart';
+import '../MyColors.dart';
 import 'SingleProjectPage.dart';
 import '../Utility.dart';
 
 
 class MainPage extends StatefulWidget{
+  const MainPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _MainPageState();
 }
@@ -44,9 +42,9 @@ class _MainPageState extends State<MainPage> {
       projects.clear();
       List<dynamic> bodyBuffer = jsonDecode(response.body);
       List<CustomProject> buffer = [];
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         buffer.add(CustomProject.fromJson(element));
-      });
+      }
       setState(() {
         projects = buffer.where((element) => element.isDone ==false).toList();
         projects += buffer.where((element) => element.isDone == true).toList();
@@ -65,11 +63,12 @@ class _MainPageState extends State<MainPage> {
         'projectID': element.id.toString(),
       }));
       if(response.statusCode==200){
+        print(response.body);
         List<dynamic> bodyBuffer = jsonDecode(response.body);
         List<SubTask> buffer = [];
-        bodyBuffer.forEach((element) {
+        for (var element in bodyBuffer) {
           buffer.add(SubTask.fromJson(element));
-        });
+        }
         setState(() {
             childSubTasks.add(buffer);
         });
@@ -208,22 +207,22 @@ class _MainPageState extends State<MainPage> {
   Widget getTextWidget(int index){
     if(index==0 && projects[index].isDone == true && projects.length==1){
       return Container(
-        margin: EdgeInsets.only(left: 75),
+        margin: const EdgeInsets.only(left: 75),
         child: const Text("Завершенные проекты",style: TextStyle(fontSize: 25),),
       );
     }
     if(index == 0){
       return Container(
-        margin: EdgeInsets.only(left: 75),
+        margin: const EdgeInsets.only(left: 75),
         child: const Text("Текущие проекты",style: TextStyle(fontSize: 25),),
       );
     }else if(projects[index].isDone == true && projects[index-1].isDone == false){
       return Container(
-        margin: EdgeInsets.only(left: 75),
+        margin: const EdgeInsets.only(left: 75),
         child: const Text("Завершенные проекты",style: TextStyle(fontSize: 25),),
       );
     }
-    return Text("");
+    return const Text("");
   }
   Future<void> setDate(int index)async{
     var a = await showDialog(
@@ -322,105 +321,45 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return ContextMenuOverlay(
       child: Scaffold(
-          appBar: AppBar(
-            title: Text("Все проекты"),
-            actions: [
-              IconButton(onPressed: (){
-                GetProjects();
-              }, icon:Icon(Icons.sync)),
-            ],
-          ),
+        backgroundColor: MyColors.backgroundColor,
           body: ListView.builder(
             itemCount: projects.length,
             itemBuilder: (BuildContext context,int index){
-              return Column(
-                children: [
-                  getTextWidget(index),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Column(
-                        children: [
-                          Text("Выполнено задач: "),
-                          Container(
-                            width: 250,
-                            child: FAProgressBar(
-                              currentValue: getSubtaskPercentsForProgressBars(projects[index]),
-                              size: 25,
-                              maxValue: 100,
-                              changeProgressColor: Colors.pink,
-                              backgroundColor: Colors.white70,
-                              border: Border.all(
-                                  color: getSubTaskColorByPercents( getSubtaskPercentsForProgressBars(projects[index]))
-                              ),
-                              progressColor: getSubTaskColorByPercents( getSubtaskPercentsForProgressBars(projects[index])),
-                              animatedDuration: const Duration(milliseconds: 300),
-                              direction: Axis.horizontal,
-                              verticalDirection: VerticalDirection.up,
-                              displayText: '%',
-                              displayTextStyle: TextStyle(color: Colors.black),
-                              formatValueFixed: 0,
-                            ),
-                          ),
-                          Container(
-                            height: 15,
-                          ),
-                          Text("Прошло времени: "),
-                          Container(
-                            width: 250,
-                            child: FAProgressBar(
-                              currentValue: getDaysPercentsForProgressBar(projects[index]),
-                              size: 25,
-                              maxValue: 100,
-                              border: Border.all(
-                                color: getDaysColorByPercents(getDaysPercentsForProgressBar(projects[index])),
-                              ),
-                              changeProgressColor: Colors.pink,
-                              backgroundColor: Colors.white70,
-                              progressColor: getDaysColorByPercents(getDaysPercentsForProgressBar(projects[index])),
-                              animatedDuration: const Duration(milliseconds: 300),
-                              direction: Axis.horizontal,
-                              verticalDirection: VerticalDirection.up,
-                              displayText: '%',
-                              formatValueFixed: 0,
-                              displayTextStyle: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                        ],
+              var project = projects[index];
+              return ListTile(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>SingleProjectPage(project)));
+                },
+                tileColor: Colors.white,
+                title: Text(project.Title),
+                subtitle: Text(project.Description),
+                trailing: PopupMenuButton<int>(
+                  onSelected: (value){
+                    if(value == 0){
+                      setDate(index);
+                    }else if(value ==1){
+                      endProject(project);
+                    }else{
+                      deleteProject(project);
+                    }
+                  },
+                  itemBuilder: (BuildContext context){
+                    return <PopupMenuEntry<int>>[
+                      const PopupMenuItem<int>(
+                        value: 0,
+                        child: Text("Изменить дату завершения"),
                       ),
-                      Container(width: 15,),
-                      ContextMenuRegion(
-                        contextMenu: GenericContextMenu(
-                          buttonConfigs: [
-                            ContextMenuButtonConfig("Продлить дату проекта", onPressed: ()async{
-                              setDate(index);
-                            }),
-                            ContextMenuButtonConfig("Завершить проект", onPressed: (){
-                              endProject(projects[index]);
-                              print("end click");
-                            }),
-                            ContextMenuButtonConfig("Удалить проект", onPressed: (){
-                              deleteProject(projects[index]);
-                              print("delete click");
-                            })
-                          ],
-                        ),
-                        child: Card(
-                            elevation: 10,
-                            shape: RoundedRectangleBorder(
-                                side: const BorderSide(
-                                  color: Colors.blue,
-                                ),
-                                borderRadius: BorderRadius.circular(30)
-                            ),
-                            shadowColor: Colors.blue,
-                            child: inkWell(index)
-                        ),
+                      const PopupMenuItem<int>(
+                        value: 1,
+                        child: Text("Завершить проект"),
                       ),
-                    ],
-                  )
-                ],
+                      const PopupMenuItem<int>(
+                        value: 2,
+                        child: Text("Удалить проект"),
+                      ),
+                    ];
+                  },
+                )
               );
             },
           ),

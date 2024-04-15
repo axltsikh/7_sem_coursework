@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../Models/SubTaskModel.dart';
 import '../Utility.dart';
 
 class CheckBoxBuilder extends StatefulWidget{
-  CheckBoxBuilder(this.subtask,this.creatorFlag){}
+  CheckBoxBuilder(this.subtask,this.creatorFlag, {super.key});
   SubTaskModel subtask;
   bool creatorFlag;
   @override

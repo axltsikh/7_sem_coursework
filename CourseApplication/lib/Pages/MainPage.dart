@@ -1,6 +1,7 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Pages/ProfilePage.dart';
 import 'package:course_application/Pages/ProjectsPage.dart';
+import 'package:course_application/Utility/Colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -48,6 +49,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
     return CupertinoTabScaffold(
 
         tabBar: CupertinoTabBar(
+          activeColor: MyColors.firstAccent,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.list),label: "Проекты"),
             BottomNavigationBarItem(icon: Icon(Icons.person),label: "Профиль")

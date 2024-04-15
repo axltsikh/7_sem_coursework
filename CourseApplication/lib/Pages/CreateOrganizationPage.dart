@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import '../Utility/ButtonStyles.dart';
+import '../Utility/Colors.dart';
 
 
 class CreateOrganizationPage extends StatefulWidget{
@@ -51,9 +52,8 @@ class _CreateOrganizationPage extends State<CreateOrganizationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Создание организации"),
-      ),
+      backgroundColor: MyColors.backgroundColor,
+      appBar: WidgetTemplates.getAppBarWithReturnButton("Создание организации", context),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(15),
@@ -61,33 +61,27 @@ class _CreateOrganizationPage extends State<CreateOrganizationPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(height: 50,width: 150,),
-              Container(
-                width: 300,
-                child: CupertinoTextField(
-                  placeholder: "Введите название организации",
-                  controller: organizationNameController,
-                  clearButtonMode: OverlayVisibilityMode.always,
-                ),
-              ),
+              WidgetTemplates.getTextField(organizationNameController, "Название организации"),
               SizedBox(height: 15,),
-              Container(width: 300,child: CupertinoTextField(
-                placeholder: "Введите пароль организации",
-                clearButtonMode: OverlayVisibilityMode.always,
-                controller: organizationPasswordController,
-                obscureText: true,
-              ),),
-              Container(height: 25),
-              SizedBox(
-                width: 300,
-                child: CupertinoTextField(
-                  placeholder: "Подтвердите пароль организации",
-                  controller: organizationRepeatPasswordController,
-                  clearButtonMode: OverlayVisibilityMode.always,
-                  obscureText: true,
-                ),
-              ),
+              WidgetTemplates.getPasswordTextField(organizationPasswordController,true, "Пароль организации"),
+              SizedBox(height: 15),
+              WidgetTemplates.getPasswordTextField(organizationRepeatPasswordController,true, "Подтвердите пароль организации"),
+
               Container(height: 25,),
-              CupertinoButtonTemplate("Создать\nорганизацию", createOrganisation)
+              Container(
+                width: 350,
+                height: 60,
+                padding: EdgeInsets.only(top:15),
+                child: TextButton(
+                  onPressed: createOrganisation,
+                  child: Text("Создать организацию",style: TextStyle(
+                      fontFamily: 'SanFranciscoPro',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                      color: MyColors.backgroundColor),),
+                  style: ButtonStyles.mainButton(),
+                ),
+              )
             ],
           ),
         )
