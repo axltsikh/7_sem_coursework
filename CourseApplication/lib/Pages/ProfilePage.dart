@@ -210,29 +210,29 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                 color: MyColors.backgroundColor,
                 height: 1,
               ),
-              SizedBox(
-                width: 324,
-                child: ListTile(
-                  onTap: () {
-
-                  },
-                  tileColor: MyColors.secondBackground,
-                  leading: Icon(
-                    Icons.notifications,
-                    color: MyColors.firstAccent,
-                  ),
-                  title: Text("Уведомления",
-                      style: TextStyle(
-                          fontFamily: 'SanFranciscoPro',
-                          fontSize: 15,
-                          color: MyColors.textColor)),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-              Divider(
-                color: MyColors.backgroundColor,
-                height: 1,
-              ),
+              // SizedBox(
+              //   width: 324,
+              //   child: ListTile(
+              //     onTap: () {
+              //
+              //     },
+              //     tileColor: MyColors.secondBackground,
+              //     leading: Icon(
+              //       Icons.notifications,
+              //       color: MyColors.firstAccent,
+              //     ),
+              //     title: Text("Уведомления",
+              //         style: TextStyle(
+              //             fontFamily: 'SanFranciscoPro',
+              //             fontSize: 15,
+              //             color: MyColors.textColor)),
+              //     trailing: const Icon(Icons.arrow_forward_ios),
+              //   ),
+              // ),
+              // Divider(
+              //   color: MyColors.backgroundColor,
+              //   height: 1,
+              // ),
               SizedBox(
                 width: 324,
                 child: ListTile(
@@ -254,27 +254,27 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                 color: MyColors.backgroundColor,
                 height: 1,
               ),
-              SizedBox(
-                width: 324,
-                child: ListTile(
-                  onTap: (){},
-                  tileColor: MyColors.secondBackground,
-                  leading:
-                  Icon(Icons.close, color: MyColors.fourthAccent),
-                  title: Text(
-                    "Удалить аккаунт",
-                    style: TextStyle(
-                        fontFamily: 'SanFranciscoPro',
-                        fontSize: 15,
-                        color: MyColors.fourthAccent),
-                  ),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-              Divider(
-                color: MyColors.backgroundColor,
-                height: 1,
-              ),
+              // SizedBox(
+              //   width: 324,
+              //   child: ListTile(
+              //     onTap: (){},
+              //     tileColor: MyColors.secondBackground,
+              //     leading:
+              //     Icon(Icons.close, color: MyColors.fourthAccent),
+              //     title: Text(
+              //       "Удалить аккаунт",
+              //       style: TextStyle(
+              //           fontFamily: 'SanFranciscoPro',
+              //           fontSize: 15,
+              //           color: MyColors.fourthAccent),
+              //     ),
+              //     trailing: const Icon(Icons.arrow_forward_ios),
+              //   ),
+              // ),
+              // Divider(
+              //   color: MyColors.backgroundColor,
+              //   height: 1,
+              // ),
               SizedBox(
                 width: 324,
                 child: ListTile(

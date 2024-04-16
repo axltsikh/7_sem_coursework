@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../CustomModels/CustomProject.dart';
+import '../Utility/ButtonStyles.dart';
+import '../Utility/Colors.dart';
+import '../Utility/WidgetTemplates.dart';
 class AddParentTaskDialog extends StatefulWidget{
   AddParentTaskDialog(this.project){}
   CustomProject project;
@@ -34,22 +37,29 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
   Widget build(BuildContext context) {
     return Container(
         width: 250,
-        height: 200,
+        height: 220,
         child: Padding(
           padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              const Text("Добавление задачи"),
-              const Divider(thickness: 1,color: Colors.blue,),
+              Text("Добавление задачи",style: TextStyle(
+                  fontSize: 20
+              ),),
               const SizedBox(height: 15,),
-              CupertinoTextField(
-                placeholder: "Название задачи",
-                controller: controller,
-              ),
+              WidgetTemplates.getTextField(controller, "Введите название задачи"),
               const SizedBox(height: 15,),
-              CupertinoButtonTemplate(
-                  "Сохранить",
-                  returnSubTask
+              SizedBox(
+                width: 260,
+                child: TextButton(
+                  onPressed: returnSubTask,
+                  style: ButtonStyles.mainButton(),
+                  child: Text("Сохранить",
+                      style: TextStyle(
+                          fontFamily: 'SanFranciscoPro',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: MyColors.backgroundColor)),
+                ),
               )
             ],
           ),

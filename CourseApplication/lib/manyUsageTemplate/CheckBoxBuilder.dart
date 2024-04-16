@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../CustomModels/CustomProject.dart';
+import '../Utility/Colors.dart';
 import '../Utility/Utility.dart';
 
 class CheckBoxBuilder extends StatefulWidget{
@@ -25,6 +26,14 @@ class _CheckBoxBuilderState extends State<CheckBoxBuilder> {
     print(creatorFlag);
     if(creatorFlag && subtask.isTotallyDone==false){
       return Checkbox(
+        checkColor: Colors.white,
+        focusColor: MyColors.firstAccent,
+        fillColor: MaterialStateProperty.resolveWith((states){
+          if (!states.contains(MaterialState.selected)) {
+            return Colors.transparent;
+          }
+          return MyColors.firstAccent;
+        }),
         value: subtask.isDone,
         onChanged: (bool? value) {
           setState(() {

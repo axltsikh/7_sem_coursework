@@ -196,7 +196,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                 children: [
                   ListTile(
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (builder) => SingleProjectPage(project)));
+                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => SingleProjectPage(project)));
                     },
                     leading: CircleAvatar(
                       backgroundColor: MyColors.firstAccent,
@@ -205,6 +205,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                         color: MyColors.secondBackground,
                       ),
                     ),
+                    trailing: Icon(Icons.arrow_forward_ios),
                     title: Text(project.Title),
                     subtitle: Text(project.Description),),
                 ],
@@ -238,6 +239,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                         color: MyColors.secondBackground,
                       ),
                     ),
+                    trailing: Icon(Icons.arrow_forward_ios),
                     title: Text(project.Title),
                     subtitle: Text(project.Description),),
                 ],
@@ -272,6 +274,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                       ),
                     ),
                     title: Text(project.Title),
+                    trailing: Icon(Icons.arrow_forward_ios),
                     subtitle: Text(project.Description),),
                 ],
               );

@@ -5,8 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:oktoast/oktoast.dart';
-import 'Pages/HomePage.dart';
-import 'Utility.dart';
+import 'package:web_application/widget_templates.dart';
+import 'button_styles.dart';
+import 'my_colors.dart';
+import 'Pages/home_page.dart';
+import 'utility.dart';
 
 void main() {
   runApp(const MyApp());
@@ -62,38 +65,33 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: MyColors.backgroundColor,
         appBar: AppBar(title: const Text("Вход"),),
         body: Center(
             child: Align(
                 alignment: Alignment.center,
                 child: Container(
-                  width: 250,
+                  width: 350,
                   margin: const EdgeInsets.only(top: 150),
                   child: Column(
                     children: [
+                      WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
+                      SizedBox(height: 25,),
+                      WidgetTemplates.getPasswordTextField(passwordFieldController,true, 'Пароль'),
+                      SizedBox(height: 250,),
                       Container(
-                          margin: const EdgeInsets.only(top: 25),
-                          child: CupertinoTextField(
-                            placeholder: "Имя пользователя",
-                            controller: loginFieldController,
-                            clearButtonMode: OverlayVisibilityMode.always,
-                          )
-                      ),
-                      Container(
+                          width: 350,
+                          height: 60,
                           margin: const EdgeInsets.only(top: 15),
-                          child: CupertinoTextField(
-                            placeholder: "Пароль",
-                            obscureText: true,
-                            controller: passwordFieldController,
-                            clearButtonMode: OverlayVisibilityMode.always,
-                          )
-                      ),
-                      Container(
-                          margin: const EdgeInsets.only(top: 15),
-                          child: CupertinoButton.filled(
-                              onPressed: login,
-                              borderRadius: BorderRadius.circular(15),
-                              child: const Text("Войти"),
+                          child: TextButton(
+                            onPressed: login,
+                            style: ButtonStyles.mainButton(),
+                            child: Text("Войти",
+                                style: TextStyle(
+                                    fontFamily: 'SanFranciscoPro',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: MyColors.backgroundColor)),
                           )
                       ),
                     ],

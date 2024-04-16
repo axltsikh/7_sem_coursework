@@ -35,7 +35,7 @@ class DatabaseHandler{
           await db.execute('create table ProjectMember(id INTEGER PRIMARY KEY AUTOINCREMENT,projectID integer references Project(id),deleted INTEGER default 0,changed INTEGER)');
           await db.execute('alter table Project add column creatorID integer references ProjectMember(id)');
           await db.execute('alter table ProjectMember add column organisationMemberID integer references OrganisationMember(id)');
-          await db.execute('create table SubTask(id integer PRIMARY KEY AUTOINCREMENT,parent INTEGER null,projectID INTEGER REFERENCES Project(id),title text,isDone integer,isTotallyDone integer,changed INTEGER,weakcreated integer, created integer)');
+          await db.execute('create table SubTask(id integer PRIMARY KEY AUTOINCREMENT,parent INTEGER null,projectID INTEGER REFERENCES Project(id),title text,isDone integer,isTotallyDone integer,changed INTEGER,weakcreated integer, created integer, completionDate date, deadLine date)');
           await db.execute('create table SubTaskExecutor(id integer PRIMARY KEY AUTOINCREMENT,subTaskID integer REFERENCES SubTask(id),executorID integer REFERENCES ProjectMember(id),changed INTEGER)');
         },
         version: 1
@@ -166,27 +166,12 @@ class DatabaseHandler{
       bool isDone = parseIntToBool(element.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(element.putIfAbsent("isTotallyDone", () => null));
       subTasksBuffer.add(SubTask(element.putIfAbsent("id", () => null), element.putIfAbsent("parent", () => null),
-          globalProjectID, element.putIfAbsent("title", () => null), isDone, isTotallyDone));
+          globalProjectID, element.putIfAbsent("title", () => null), isDone, isTotallyDone,"",""));
     });
     await bufferFunc(globalProjectID, subTasksBuffer, parents).then((value){
       parents=value;
       uploadChildSubTasks(globalProjectID, members,parents);
     });
-    // subTasksBuffer.forEach((element) async {
-    //   element.ProjectID = globalProjectID;
-    //   final String url = "http://${Utility.url}/reverseSync/uploadParentSubTask";
-    //   final response = await http.post(
-    //       Uri.parse(url), headers: <String, String>{
-    //     'Content-Type': 'application/json;charset=UTF-8',
-    //   }, body: jsonEncode(element)).then((response){
-    //     if (response.statusCode == 200){
-    //       print("parenttaskid: " + response.body);
-    //       uploadChildSubTasks(globalProjectID, element.id,int.parse(response.body),members);
-    //     } else {
-    //       print("asd");
-    //     }
-    //   });
-    // });
   }
   Future<Map<int,int>> bufferFunc(int globalProjectID,List<SubTask> subTasksBuffer,Map<int,int> parents)async{
     for(var element in subTasksBuffer){
@@ -223,7 +208,9 @@ class DatabaseHandler{
                                                                       SubTask.title as title,
                                                                       SubTask.isDone as isDone,
                                                                       SubTask.isTotallyDone as isTotallyDone,
-                                                                      SubTaskExecutor.executorID as executorID
+                                                                      SubTaskExecutor.executorID as executorID,
+                                                                      SubTask.completionDate,
+                                                                      SubTask.deadLine
                                                                       from SubTask inner Join SubTaskExecutor on SubTask.id = SubTaskExecutor.subTaskID
 																	                                    inner join Project on Project.id=SubTask.projectID
                                                                       where created=1 and weakcreated=0 and Project.changed is not null""",[]);
@@ -233,14 +220,11 @@ class DatabaseHandler{
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
       childSub.add(ChildSubTaskModel(0, parents[childelement.putIfAbsent("parent", () => null)]!,
           globalProjectID , childelement.putIfAbsent("title", () => null), isDone,
-          isTotallyDone,members[childelement.putIfAbsent("executorID", () => null)]!,
+          isTotallyDone,members[childelement.putIfAbsent("executorID", () => null)]!,childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
           ));
     });
     print("length: " + childSub.length.toString());
     for(var element in childSub){
-      print("elelemnt: " + element.title);
-      print("elelemnt: " + element.subTaskID.toString());
-      print("elelemnt: " + element.parent.toString());
       // await db.rawQuery("UPDATE SubTask set changed=0,created=0,weakcreated=0 where id=?",[element.subTaskID]);
       final String url = "http://${Utility.url}/reverseSync/uploadChildSubTask";
       final response = await http.post(
@@ -269,7 +253,7 @@ class DatabaseHandler{
       bool isDone = parseIntToBool(element.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(element.putIfAbsent("isTotallyDone", () => null));
       subTasksBuffer.add(SubTask(element.putIfAbsent("id", () => null), null,
-          element.putIfAbsent("projectID", () => null), element.putIfAbsent("title", () => null), isDone, isTotallyDone));
+          element.putIfAbsent("projectID", () => null), element.putIfAbsent("title", () => null), isDone, isTotallyDone,"",""));
     });
     await unboundedBuffer(subTasksBuffer, parents).then((value){
 
@@ -305,7 +289,9 @@ class DatabaseHandler{
                                                                       SubTask.title as title,
                                                                       SubTask.isDone as isDone,
                                                                       SubTask.isTotallyDone as isTotallyDone,
-                                                                      SubTaskExecutor.executorID as executorID
+                                                                      SubTaskExecutor.executorID as executorID,
+                                                                      SubTask.completionDate,
+                                                                      SubTask.deadLine
                                                                       from SubTask inner Join SubTaskExecutor on SubTask.id = SubTaskExecutor.subTaskID
                                                                       inner join Project on Project.id = SubTask.projectID and Project.changed is null
 																	                                    where created = 1""");
@@ -315,7 +301,7 @@ class DatabaseHandler{
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
       childSub.add(new ChildSubTaskModel(0, parents[childelement.putIfAbsent("parent", () => null)]!,
         childelement.putIfAbsent("projectID", () => null) , childelement.putIfAbsent("title", () => null), isDone,
-        isTotallyDone,childelement.putIfAbsent("executorID", () => null),
+        isTotallyDone,childelement.putIfAbsent("executorID", () => null),childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
       ));
     });
     for(var element in childSub){
@@ -345,7 +331,9 @@ class DatabaseHandler{
                                                                       SubTask.title as title,
                                                                       SubTask.isDone as isDone,
                                                                       SubTask.isTotallyDone as isTotallyDone,
-                                                                      SubTaskExecutor.executorID as executorID
+                                                                      SubTaskExecutor.executorID as executorID,
+                                                                      SubTask.completionDate,
+                                                                      SubTask.deadLine
                                                                       from SubTask inner Join SubTaskExecutor on SubTask.id = SubTaskExecutor.subTaskID
                                                                       where weakcreated = 1""");
     childmaps.toList().forEach((childelement) {
@@ -354,7 +342,7 @@ class DatabaseHandler{
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
       childSub.add(ChildSubTaskModel(0, childelement.putIfAbsent("parent", () => null),
         childelement.putIfAbsent("projectID", () => null) , childelement.putIfAbsent("title", () => null), isDone,
-        isTotallyDone,childelement.putIfAbsent("executorID", () => null),
+        isTotallyDone,childelement.putIfAbsent("executorID", () => null),childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
       ));
     });
     childSub.forEach((element) async{
@@ -381,14 +369,16 @@ class DatabaseHandler{
                                                                       SubTask.projectID as projectID,
                                                                       SubTask.title as title,
                                                                       SubTask.isDone as isDone,
-                                                                      SubTask.isTotallyDone as isTotallyDone
+                                                                      SubTask.isTotallyDone as isTotallyDone,
+                                                                      SubTask.completionDate,
+                                                                      SubTask.deadLine
                                                                       from SubTask where changed = 1""");
     childmaps.toList().forEach((childelement) {
       bool isDone = parseIntToBool(childelement.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
       childSub.add(SubTask(childelement.putIfAbsent("subTaskID", () => null), childelement.putIfAbsent("parent", () => null),
         childelement.putIfAbsent("projectID", () => null) , childelement.putIfAbsent("title", () => null), isDone,
-        isTotallyDone
+        isTotallyDone,childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
       ));
     });
     childSub.forEach((element) async{
@@ -414,9 +404,6 @@ class DatabaseHandler{
   //endregion
 
   //region sync
-
-
-
   Future<List<User>> getUsers() async{
     final db= await database;
     final List<Map<String,dynamic>> maps = await db.query("AppUser");
@@ -609,7 +596,7 @@ class DatabaseHandler{
       bool isDone = parseIntToBool(element.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(element.putIfAbsent("isTotallyDone", () => null));
       subTasksBuffer.add(new SubTask(element.putIfAbsent("id", () => null), element.putIfAbsent("parent", () => null),
-          element.putIfAbsent("projectID", () => null), element.putIfAbsent("title", () => null), isDone, isTotallyDone));
+          element.putIfAbsent("projectID", () => null), element.putIfAbsent("title", () => null), isDone, isTotallyDone,"",""));
     });
     return subTasksBuffer;
   }
@@ -617,7 +604,7 @@ class DatabaseHandler{
     final db= await database;
     List<SubTaskModel> subTasksBuffer = [];
     final List<Map<String,dynamic>> maps = await db.rawQuery("""select SubTaskExecutor.id as subTaskExecutorID,SubTaskExecutor.subTaskID ,AppUser.username,
-                                                                SubTask.title,SubTask.isDone,SubTask.parent,SubTask.isTotallyDone from SubTaskExecutor 
+                                                                SubTask.title,SubTask.isDone,SubTask.parent,SubTask.isTotallyDone,SubTask.completionDate, SubTask.deadLine  from SubTaskExecutor
                                                                 inner join ProjectMember on ProjectMember.id=SubTaskExecutor.executorID 
                                                                 inner join OrganisationMember on OrganisationMember.id = ProjectMember.organisationMemberID
                                                                 inner join AppUser on AppUser.id=OrganisationMember.userID 
@@ -630,7 +617,9 @@ class DatabaseHandler{
           element.putIfAbsent("username", () => null),
           element.putIfAbsent("title", () => null),
           isDone, isTotallyDone,
-          element.putIfAbsent("parent", () => null)));
+          element.putIfAbsent("parent", () => null),
+          element.putIfAbsent("completionDate", () => null),
+          element.putIfAbsent("deadLine", () => null)));
     });
     return subTasksBuffer;
   }
@@ -750,12 +739,12 @@ class DatabaseHandler{
     print("subtask add");
     final db= await database;
     if(status == 1){
-      db.rawQuery("insert into SubTask(parent,projectID,title,isDone,isTotallyDone,changed,weakcreated,created) values(?,?,?,?,?,?,?,?)",[
-        subtask.parent,subtask.ProjectID,subtask.title,0,0,0,0,1
+      db.rawQuery("insert into SubTask(parent,projectID,title,isDone,isTotallyDone,changed,weakcreated,created,completionDate,deadLine) values(?,?,?,?,?,?,?,?,?,?)",[
+        subtask.parent,subtask.ProjectID,subtask.title,0,0,0,0,1,subtask.completionDate,subtask.deadLine
       ]);
     }else if(status == 0){
-      db.rawQuery("insert into SubTask(parent,projectID,title,isDone,isTotallyDone,changed,weakcreated,created) values(?,?,?,?,?,?,?,?)",[
-        subtask.parent,subtask.ProjectID,subtask.title,0,0,0,1,0
+      db.rawQuery("insert into SubTask(parent,projectID,title,isDone,isTotallyDone,changed,weakcreated,created,completionDate,deadLine) values(?,?,?,?,?,?,?,?,?,?)",[
+        subtask.parent,subtask.ProjectID,subtask.title,0,0,0,1,0,subtask.completionDate,subtask.deadLine
       ]);
     }
     String subTaskNumber="";

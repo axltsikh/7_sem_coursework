@@ -289,6 +289,17 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     if(project.isDone==true){
       return Text("");
     }
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: MyColors.firstAccent
+      ),
+      child: IconButton(
+        color: MyColors.firstAccent,
+        onPressed: saveChanges,
+        icon: Icon(Icons.check,color: Colors.white,),
+      ),
+    );
     return CupertinoButton.filled(
         padding: EdgeInsets.fromLTRB(20,0,20,0),
         child: Text(ButtonText),
@@ -324,6 +335,9 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
   }
   Widget tasksList(){
     return Container(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(topRight: Radius.circular(25),topLeft: Radius.circular(25))
+      ),
       height: 550,
       child: Card(
         elevation: 0,
@@ -337,20 +351,18 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
             return Column(
               children: [
                 ListTile(
-                  title: Text(parentSubTasks[mainTaskIndex].title,style: TextStyle(
-                    color: MyColors.textColor
+                  tileColor:MyColors.firstAccent,
+                  title: Text(parentSubTasks[mainTaskIndex].title,style: const TextStyle(
+                    color: Colors.white
                   ),),
                   trailing: IconButton(
-                    icon: Icon(Icons.add),
+                    icon: Icon(Icons.add,color: Colors.white,),
                     onPressed: () async{
                       var a = await showDialog(
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(15))),
-                              contentPadding: const EdgeInsets.only(top: 10.0),
+                              backgroundColor: MyColors.secondBackground,
                               content: AddSubTaskDialog(project,projectMembers,parentSubTasks[mainTaskIndex].id),
                             );
                           }
@@ -364,25 +376,22 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                   ),
                 ),
                 ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
                   itemBuilder: (BuildContext context,int subTaskIndex){
                     return
                       Container(
+                        margin: const EdgeInsets.only(left: 50),
                         width: 150,
                         child:  ListTile(
                           title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title),
-                          subtitle: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username),
+                          subtitle: Text("Исполнитель: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username}\nДедлайн: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].deadLine.substring(0,10)}"),
                           trailing: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
+                          isThreeLine: true,
                         ),
                       );
                   },
                 ),
-                Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                )
               ],
             );
           },
@@ -420,7 +429,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
         margin: EdgeInsets.only(bottom: 55),
         child: footerButton(),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       appBar: WidgetTemplates.getAppBarWithReturnButton(project.Title, context),
       body: SingleChildScrollView(
         child: Container(

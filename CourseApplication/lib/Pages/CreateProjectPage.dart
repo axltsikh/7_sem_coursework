@@ -205,7 +205,9 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                                 );
                                 setState(() {
                                   if(a!=null){
-                                    projectMembers.add(a);
+                                    setState(() {
+                                      projectMembers.add(a);
+                                    });
                                   }
                                 });
                               },

@@ -295,10 +295,12 @@ app.get("/project/getProjectParentTasks",function(req,response){
 app.post("/project/addChildSubTask",function(req,response){
     console.log("AddChildSubTask call");
     let buffer = JSON.parse(JSON.stringify(req.body));
+    console.log(buffer);
     request = new sql.Request();
     request.input('title',buffer.title);
     request.input('projectID',buffer.projectID);
     request.input('parentID',buffer.parent);
+    request.input('deadLine',buffer.deadLine);
     request.execute('InsertChildSubTask').then(function(result){
         if(result.returnValue!=-1){
             response.statusCode=200
@@ -708,6 +710,8 @@ app.post("/reverseSync/uploadChildSubTask",function(req,response){
     request.input('isDone',buffer.isDone);
     request.input('isTotallyDone',buffer.isTotallyDone);
     request.input('ExecutorID',buffer.executorID);
+    request.input('completionDate',buffer.completionDate);
+    request.input('deadLine',buffer.deadLine);
     // request.input('executorMemberID',buffer.executorMemberID);
     console.log('got parentID: ' + buffer.parent);
     console.log('got title: ' + buffer.title);

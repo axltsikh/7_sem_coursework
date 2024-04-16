@@ -3,12 +3,16 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Pages/AddSubtaskExecutorDialog.dart';
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:course_application/Models/SubTask.dart';
+import 'package:course_application/Utility/Colors.dart';
+import 'package:course_application/Utility/WidgetTemplates.dart';
 import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../CustomModels/CustomProject.dart';
+import '../Utility/ButtonStyles.dart';
 import '../Utility/Utility.dart';
 
 class AddSubTaskDialog extends StatefulWidget{
@@ -25,10 +29,11 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
     subtask.parent=parentID;
     subtask.ProjectID=project.id;
   }
-  CustomProjectMember subTaskExecutors = CustomProjectMember(0,"Исполнитель",0,0);
+  CustomProjectMember subTaskExecutors = CustomProjectMember(0,"Выбрать исполнителя",0,0);
   List<CustomProjectMember> projectMembers;
   TextEditingController controller = TextEditingController();
   SubTask subtask = SubTask.empty();
+
   Future<void> addChildSubTask()async{
     if(controller.text.length < 3){
       Fluttertoast.showToast(msg: "Минимальная длина названия подзадачи - 3 символа!");
@@ -49,6 +54,7 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
       }
       Navigator.pop(context,true);
     }else{
+      print(jsonEncode(subtask));
       final String url = "http://${Utility.url}/project/addChildSubTask";
       final response = await http.post(
           Uri.parse(url), headers: <String, String>{
@@ -74,69 +80,140 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
       Fluttertoast.showToast(msg: "Произошла ошибка");
     }
   }
-
+  void chooseSubtaskDeadLine()async{
+    var a = await showDialog(
+        context: context,
+        builder: (BuildContext context){
+          return AlertDialog(
+              content: SizedBox(
+                height: 370,
+                child: Column(
+                  children: [
+                    DateRangePickerWidget(
+                      theme: CalendarTheme(
+                        selectedColor: Colors.blue,
+                        dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
+                        inRangeColor: Color(0xFFD9EDFA),
+                        inRangeTextStyle: TextStyle(color: Colors.blue),
+                        selectedTextStyle: TextStyle(color: Colors.white),
+                        todayTextStyle: TextStyle(fontWeight: FontWeight.bold),
+                        defaultTextStyle: TextStyle(color: Colors.black, fontSize: 12),
+                        radius: 10,
+                        tileSize: 33,
+                        disabledTextStyle: TextStyle(color: Colors.grey),
+                      ),
+                      doubleMonth: false,
+                      height: 310,
+                      initialDisplayedDate:DateTime.now(),
+                      onDateRangeChanged: (dateRange){
+                        setState(() {
+                          subtask.deadLine = dateRange!.start.toString().substring(0,10);
+                          subtask.deadLine = dateRange!.end.toString().substring(0,10);
+                        });
+                      },
+                    ),
+                    SizedBox(
+                      width: 220,
+                      child: TextButton(
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                        child: Text("Подтвердить выбор",style: TextStyle(
+                            fontFamily: 'SanFranciscoPro',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                            color: MyColors.backgroundColor),),
+                        style: ButtonStyles.mainButton(),
+                      ),
+                    )
+                  ],
+                ),
+              )
+          );
+        }
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 250,
       height: 300,
       child: Padding(
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.zero,
         child: Column(
           children: [
-            Text("Добавление подзадачи"),
-            Divider(thickness: 1,color: Colors.blue,),
-            CupertinoTextField(
-              placeholder: "Введите название",
-              clearButtonMode: OverlayVisibilityMode.always,
-              controller: controller,
-            ),
+            Text("Добавление подзадачи",style: TextStyle(
+              fontSize: 20
+            ),),
             SizedBox(height: 15,),
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: 50
-              ),
-              child: Card(
-                elevation: 10,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)
+            WidgetTemplates.getTextField(controller, "Введите название"),
+            SizedBox(height: 15,),
+            GestureDetector(
+              onTap: ()async{
+                var a = await showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(
+                                Radius.circular(30))),
+                        contentPadding: EdgeInsets.only(top: 10.0),
+                        content: AddSubTaskExecutorDialog(projectMembers),
+                      );
+                    }
+                );
+                if (a != null) {
+                  setState(() {
+                    subTaskExecutors = a;
+                  });
+                }
+              },
+              child: Container(
+                width: 260,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: MyColors.firstAccent,
+                  borderRadius: BorderRadius.circular(25)
                 ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(subTaskExecutors.username),
-                ),
+                child: Center(
+                  child: Text(subTaskExecutors.username,style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white
+                  ),textAlign: TextAlign.center,),
+                )
               ),
             ),
             SizedBox(height: 10,),
-            CupertinoButtonTemplate("Выбрать исполнителя", () async{
-              var a = await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(30))),
-                      contentPadding: EdgeInsets.only(top: 10.0),
-                      content: AddSubTaskExecutorDialog(projectMembers),
-                    );
-                  }
-              );
-              if (a != null) {
-                setState(() {
-                  subTaskExecutors = a;
-                });
-              }
-            }),
-            Container(height: 15,),
-            Container(
-                width: 300,
-                child: CupertinoButtonTemplate(
-                    "Сохранить",
-                        (){
-                          subtask.title=controller.text;
-                          addChildSubTask();
-                        }
-                )
+            SizedBox(
+              child: TextButton(
+                onPressed: (){
+                  chooseSubtaskDeadLine();
+                },
+                style: ButtonStyles.mainButton(),
+                child: Text("Выбрать дедлайн",
+                    style: TextStyle(
+                        fontFamily: 'SanFranciscoPro',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: MyColors.backgroundColor)),
+              ),
+              width: 260,
+            ),
+            Container(height: 10,),
+            SizedBox(
+              width: 260,
+              child: TextButton(
+                onPressed: (){
+                  subtask.title=controller.text;
+                  addChildSubTask();
+                },
+                style: ButtonStyles.mainButton(),
+                child: Text("Сохранить",
+                    style: TextStyle(
+                        fontFamily: 'SanFranciscoPro',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: MyColors.backgroundColor)),
+              ),
             )
           ],
         ),

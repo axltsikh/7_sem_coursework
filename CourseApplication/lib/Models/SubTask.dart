@@ -5,7 +5,9 @@ class SubTask{
   String title="";
   bool isDone=false;
   bool isTotallyDone=false;
-  SubTask(this.id,this.parent,this.ProjectID,this.title,this.isDone,this.isTotallyDone);
+  String completionDate = "";
+  String deadLine = "";
+  SubTask(this.id,this.parent,this.ProjectID,this.title,this.isDone,this.isTotallyDone,this.completionDate,this.deadLine);
   SubTask.empty();
     SubTask.fromJson(Map<String,dynamic> json)
         :id = json['id'],
@@ -13,13 +15,17 @@ class SubTask{
           ProjectID = json['projectID'],
           title = json['title'],
           isTotallyDone = json['isTotallyDone'],
-          isDone = json['isDone'];
+          isDone = json['isDone'],
+          completionDate = json['completionDate'] ?? "",
+          deadLine = json['deadLine'] ?? "";
     Map<String,dynamic> toJson() => {
       'id' : id,
       'parent' : parent,
       'projectID' : ProjectID,
       'title' : title,
       'isDone' : isDone,
-      'isTotallyDone':isTotallyDone
+      'isTotallyDone':isTotallyDone,
+      'completionDate' : completionDate,
+      'deadLine' : deadLine
     };
 }
