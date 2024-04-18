@@ -1,19 +1,19 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/AddSubtaskExecutorDialog.dart';
+import 'package:course_application/Pages/add_subtask_executor_dialog.dart';
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
-import 'package:course_application/Models/SubTask.dart';
-import 'package:course_application/Utility/Colors.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Models/subtask.dart';
+import 'package:course_application/Utility/colors.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../CustomModels/CustomProject.dart';
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Utility.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/utility.dart';
 
 class AddSubTaskDialog extends StatefulWidget{
   AddSubTaskDialog(this.project,this.projectMembers,this.parentID){}
@@ -141,49 +141,51 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
         padding: EdgeInsets.zero,
         child: Column(
           children: [
-            Text("Добавление подзадачи",style: TextStyle(
+            Text("Добавить подзадачу",style: TextStyle(
               fontSize: 20
             ),),
             SizedBox(height: 15,),
-            WidgetTemplates.getTextField(controller, "Введите название"),
+           Container(
+             height: 60,
+             child:  WidgetTemplates.getTextField(controller, "Введите название"),
+           ),
             SizedBox(height: 15,),
-            GestureDetector(
-              onTap: ()async{
-                var a = await showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(30))),
-                        contentPadding: EdgeInsets.only(top: 10.0),
-                        content: AddSubTaskExecutorDialog(projectMembers),
-                      );
-                    }
-                );
-                if (a != null) {
-                  setState(() {
-                    subTaskExecutors = a;
-                  });
-                }
-              },
-              child: Container(
-                width: 260,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: MyColors.firstAccent,
-                  borderRadius: BorderRadius.circular(25)
-                ),
-                child: Center(
-                  child: Text(subTaskExecutors.username,style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.white
-                  ),textAlign: TextAlign.center,),
-                )
+            SizedBox(
+              width: 260,
+              height: 45,
+              child: TextButton(
+                onPressed: ()async{
+                  var a = await showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          backgroundColor: MyColors.backgroundColor,
+                          shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(
+                                  Radius.circular(30))),
+                          contentPadding: EdgeInsets.only(top: 10.0),
+                          content: AddSubTaskExecutorDialog(projectMembers),
+                        );
+                      }
+                  );
+                  if (a != null) {
+                    setState(() {
+                      subTaskExecutors = a;
+                    });
+                  }
+                },
+                style: ButtonStyles.mainButton(),
+                child: Text(subTaskExecutors.username,
+                    style: TextStyle(
+                        fontFamily: 'SanFranciscoPro',
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: MyColors.backgroundColor)),
               ),
             ),
             SizedBox(height: 10,),
             SizedBox(
+              height: 45,
               child: TextButton(
                 onPressed: (){
                   chooseSubtaskDeadLine();
@@ -200,6 +202,7 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
             ),
             Container(height: 10,),
             SizedBox(
+              height: 45,
               width: 260,
               child: TextButton(
                 onPressed: (){

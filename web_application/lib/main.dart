@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:oktoast/oktoast.dart';
 import 'package:web_application/widget_templates.dart';
+import 'package:web_application/widgets/password_text_field.dart';
 import 'button_styles.dart';
 import 'my_colors.dart';
 import 'Pages/home_page.dart';
@@ -77,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
                       SizedBox(height: 25,),
-                      WidgetTemplates.getPasswordTextField(passwordFieldController,true, 'Пароль'),
+                      PasswordTextField(passwordFieldController,true, 'Пароль'),
                       SizedBox(height: 250,),
                       Container(
                           width: 350,

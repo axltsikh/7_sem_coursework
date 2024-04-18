@@ -4,8 +4,8 @@ import 'package:course_application/CustomModels/GetUserOrganisation.dart';
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:course_application/CustomModels/SubTaskModel.dart';
 import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
-import 'package:course_application/Models/Organization.dart';
-import 'package:course_application/Models/SubTask.dart';
+import 'package:course_application/Models/organization.dart';
+import 'package:course_application/Models/subtask.dart';
 import 'package:course_application/CustomModels/CustomSubTaskModel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sqflite/sqflite.dart';
@@ -13,10 +13,10 @@ import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
 import '../CustomModels/ChildSubTaskModel.dart';
 import '../CustomModels/CustomProject.dart';
-import '../Models/OrganisationMember.dart';
-import '../Models/ProjectMember.dart';
-import '../Models/User.dart';
-import 'Utility.dart';
+import '../Models/organisation_member.dart';
+import '../Models/project_member.dart';
+import '../Models/user.dart';
+import 'utility.dart';
 
 class DatabaseHandler{
   DatabaseHandler(){
@@ -772,7 +772,7 @@ class DatabaseHandler{
       if(element.isDone==true){
         db.rawQuery("Update SubTask set isDone = 1,isTotallyDone = 1,changed = 1 where id = ?",[element.SubTaskID]);
       }else if(element.isDone==false){
-        db.rawQuery("Update SubTask set isDone = 0,changed = 1 where id = ?",[element.SubTaskID]);
+        db.rawQuery("Update SubTask set isDone = 0,changed = 1,completionDate = ? where id = ?",[DateTime.now(),element.SubTaskID]);
       }
     });
   }

@@ -9,4 +9,5 @@ class MyColors{
   static Color secondBackground = Colors.white;
   static Color textColor = Colors.black;
   static Color fourthAccent = Color(0xffE14F56);
+  static Color greenColor = Colors.greenAccent;
 }

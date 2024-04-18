@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
+import 'package:course_application/Utility/utility.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/password_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Colors.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/colors.dart';
 
 
 class CreateOrganizationPage extends StatefulWidget{
@@ -63,10 +64,9 @@ class _CreateOrganizationPage extends State<CreateOrganizationPage> {
               Container(height: 50,width: 150,),
               WidgetTemplates.getTextField(organizationNameController, "Название организации"),
               SizedBox(height: 15,),
-              WidgetTemplates.getPasswordTextField(organizationPasswordController,true, "Пароль организации"),
+              PasswordTextField(organizationPasswordController,true, "Пароль организации"),
               SizedBox(height: 15),
-              WidgetTemplates.getPasswordTextField(organizationRepeatPasswordController,true, "Подтвердите пароль организации"),
-
+              PasswordTextField(organizationRepeatPasswordController,true, "Подтвердите пароль организации"),
               Container(height: 25,),
               Container(
                 width: 350,

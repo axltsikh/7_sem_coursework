@@ -1,24 +1,23 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/AddParentTaskDialog.dart';
-import 'package:course_application/Pages/AddProjectMemberDialog.dart';
-import 'package:course_application/Pages/AddSubTaskDialog.dart';
+import 'package:course_application/Pages/add_parent_task_dialog.dart';
+import 'package:course_application/Pages/add_project_member_dialog.dart';
+import 'package:course_application/Pages/add_subtask_dialog.dart';
 import 'package:course_application/CustomModels/CustomProject.dart';
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:course_application/CustomModels/SubTaskModel.dart';
-import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/manyUsageTemplate/CheckBoxBuilder.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Utility/utility.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/checkbox_builder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../Models/SubTask.dart';
-import '../Models/User.dart';
-import '../Utility/Colors.dart';
+import '../Models/subtask.dart';
+import '../Models/user.dart';
+import '../Utility/colors.dart';
 
 class SingleProjectPage extends StatefulWidget{
   SingleProjectPage(this.project, {super.key}){}
@@ -319,9 +318,10 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
+                backgroundColor: MyColors.backgroundColor,
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
-                        Radius.circular(30))),
+                        Radius.circular(15))),
                 contentPadding: const EdgeInsets.only(top: 10.0),
                 content: AddParentTaskDialog(project),
               );
@@ -334,6 +334,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     );
   }
   Widget tasksList(){
+
     return Container(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(topRight: Radius.circular(25),topLeft: Radius.circular(25))
@@ -348,50 +349,96 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
             if(mainTaskIndex == parentSubTasks.length){
               return addTaskButton();
             }
+            bool currentTileExpanded = false;
             return Column(
               children: [
-                ListTile(
-                  tileColor:MyColors.firstAccent,
-                  title: Text(parentSubTasks[mainTaskIndex].title,style: const TextStyle(
-                    color: Colors.white
-                  ),),
-                  trailing: IconButton(
-                    icon: Icon(Icons.add,color: Colors.white,),
-                    onPressed: () async{
-                      var a = await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              backgroundColor: MyColors.secondBackground,
-                              content: AddSubTaskDialog(project,projectMembers,parentSubTasks[mainTaskIndex].id),
-                            );
-                          }
-                      );
-                      if (a != null) {
-                        if(a==true){
-                          InitializeProject();
-                        }
-                      }
-                    },
+                ExpansionTile(
+                  backgroundColor: MyColors.firstAccent,
+                  collapsedBackgroundColor: MyColors.firstAccent,
+                  shape: const RoundedRectangleBorder( //<-- SEE HERE
+                    borderRadius: BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
                   ),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
-                  itemBuilder: (BuildContext context,int subTaskIndex){
-                    return
-                      Container(
-                        margin: const EdgeInsets.only(left: 50),
-                        width: 150,
-                        child:  ListTile(
-                          title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title),
-                          subtitle: Text("Исполнитель: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username}\nДедлайн: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].deadLine.substring(0,10)}"),
-                          trailing: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
-                          isThreeLine: true,
-                        ),
-                      );
+                  collapsedShape: const RoundedRectangleBorder( //<-- SEE HERE
+                    borderRadius: BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
+                  ),
+                  title: Text(parentSubTasks[mainTaskIndex].title,style: const TextStyle(
+                      color: Colors.white
+                  ),),
+                  onExpansionChanged: (bool expanded) {
+                    setState(() {
+                      currentTileExpanded = expanded;
+                    });
                   },
+                  trailing: project.isDone ? Icon(
+                    color: Colors.white,
+                    currentTileExpanded
+                        ? Icons.arrow_drop_down_circle
+                        : Icons.arrow_drop_down,
+                  ) :SizedBox(
+                    width: 75,
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.add,color: Colors.white,),
+                          onPressed: () async{
+                            var a = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    backgroundColor: MyColors.secondBackground,
+                                    content: AddSubTaskDialog(project,projectMembers,parentSubTasks[mainTaskIndex].id),
+                                  );
+                                }
+                            );
+                            if (a != null) {
+                              if(a==true){
+                                InitializeProject();
+                              }
+                            }
+                          },
+                        ),
+                        Icon(
+                          color: Colors.white,
+                          currentTileExpanded
+                              ? Icons.arrow_drop_down_circle
+                              : Icons.arrow_drop_down,
+                        ),
+                      ],
+                    ),
+                  ),
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      color: Colors.white,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
+                        itemBuilder: (BuildContext context,int subTaskIndex){
+                          return
+                            Container(
+                              margin: const EdgeInsets.only(left: 10),
+                              width: 150,
+                              child:  ListTile(
+                                tileColor: MyColors.secondBackground,
+                                title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title,style: TextStyle(
+                                  fontSize: 18,fontWeight: FontWeight.w400
+                                ),),
+                                subtitle: Text("Исполнитель: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username}\nДедлайн: ${Utility.getDate(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].deadLine)}",style: TextStyle(
+                                    fontSize: 15,fontWeight: FontWeight.w400
+                                )),
+                                trailing: Container(
+                                  height: double.infinity,
+                                  child: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
+                                ),
+                                isThreeLine: true,
+                              ),
+                            );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
+                SizedBox(height: 5,)
               ],
             );
           },

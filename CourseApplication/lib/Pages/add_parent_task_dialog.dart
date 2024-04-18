@@ -1,13 +1,13 @@
-import 'package:course_application/Models/SubTask.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Models/subtask.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../CustomModels/CustomProject.dart';
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Colors.dart';
-import '../Utility/WidgetTemplates.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/colors.dart';
+import '../Utility/widget_templates.dart';
 class AddParentTaskDialog extends StatefulWidget{
   AddParentTaskDialog(this.project){}
   CustomProject project;
@@ -39,7 +39,7 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
         width: 250,
         height: 220,
         child: Padding(
-          padding: const EdgeInsets.all(15),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               Text("Добавление задачи",style: TextStyle(
@@ -50,6 +50,7 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
               const SizedBox(height: 15,),
               SizedBox(
                 width: 260,
+                height: 50,
                 child: TextButton(
                   onPressed: returnSubTask,
                   style: ButtonStyles.mainButton(),

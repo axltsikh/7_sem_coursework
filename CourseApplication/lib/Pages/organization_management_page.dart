@@ -2,15 +2,15 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/GetUserOrganisation.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../CustomModels/CustomOrganisationMember.dart';
-import '../Utility/Colors.dart';
-import '../Utility/Utility.dart';
+import '../Utility/colors.dart';
+import '../Utility/utility.dart';
 
 class OrganisationManagementPage extends StatefulWidget{
   OrganisationManagementPage(this.organisation){}

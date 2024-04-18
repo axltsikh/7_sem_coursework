@@ -1,11 +1,12 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/ProfilePage.dart';
-import 'package:course_application/Pages/ProjectsPage.dart';
-import 'package:course_application/Utility/Colors.dart';
+import 'package:course_application/Pages/profile_page.dart';
+import 'package:course_application/Pages/project_page.dart';
+import 'package:course_application/Pages/calendar_page.dart';
+import 'package:course_application/Utility/colors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../Utility/Utility.dart';
+import '../Utility/utility.dart';
 
 class MainPage extends StatefulWidget{
   @override
@@ -16,8 +17,10 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
   Widget getItem(int index){
     if(index == 1){
       return ProfilePage();
-    }else{
+    }else if(index == 0){
       return ProjectsPage();
+    }else {
+      return CalendarPage();
     }
   }
   @override
@@ -52,7 +55,8 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
           activeColor: MyColors.firstAccent,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(icon: Icon(Icons.list),label: "Проекты"),
-            BottomNavigationBarItem(icon: Icon(Icons.person),label: "Профиль")
+            BottomNavigationBarItem(icon: Icon(Icons.person),label: "Профиль"),
+            BottomNavigationBarItem(icon: Icon(Icons.schedule),label: "Календарь")
           ],
         ),
         tabBuilder: (BuildContext context,int index){

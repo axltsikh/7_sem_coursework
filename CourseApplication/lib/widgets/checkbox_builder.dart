@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../CustomModels/CustomProject.dart';
-import '../Utility/Colors.dart';
-import '../Utility/Utility.dart';
+import '../Utility/colors.dart';
+import '../Utility/utility.dart';
 
 class CheckBoxBuilder extends StatefulWidget{
   CheckBoxBuilder(this.subtask,this.creatorFlag){}

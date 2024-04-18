@@ -1,4 +1,5 @@
 import 'package:course_application/CustomModels/CustomProjectMember.dart';
+import 'package:course_application/Utility/colors.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,23 +19,32 @@ class _AddSubTaskExecutorDialog extends State<AddSubTaskExecutorDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: 250,
         height: 350,
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.all(0),
           child: Column(
             children: [
-              Text("Добавление исполнителя"),
-              Divider(thickness: 1,color: Colors.blue),
-              ConstrainedBox(
-                constraints: BoxConstraints(
-                    maxHeight: 285
+              Text("Выберите исполнителя",style: TextStyle(
+                fontSize: 18
+              ),),
+              SizedBox(height: 5,),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(33),bottomRight: Radius.circular(33))
                 ),
-                child:  ListView.builder(
+                height: 319,
+                child: ListView.builder(
                     shrinkWrap: true,
                     itemCount: projectMembers.length,
                     itemBuilder: (BuildContext context,int index){
+                      return ListTile(
+                        onTap: (){
+                          Navigator.pop(context,projectMembers[index]);
+                        },
+                        title: Text(projectMembers[index].username),
+                      );
                       return ConstrainedBox(
                         constraints: BoxConstraints(
                             minHeight: 50
@@ -55,7 +65,7 @@ class _AddSubTaskExecutorDialog extends State<AddSubTaskExecutorDialog> {
                       );
                     }
                 ),
-              ),
+              )
             ],
           ),
         )

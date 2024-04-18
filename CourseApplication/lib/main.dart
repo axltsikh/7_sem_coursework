@@ -1,18 +1,19 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/MainPage.dart';
-import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/Pages/registerPage.dart';
+import 'package:course_application/Pages/main_page.dart';
+import 'package:course_application/Utility/utility.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/Pages/register_page.dart';
+import 'package:course_application/widgets/password_textfield.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Models/User.dart';
-import 'Utility/ButtonStyles.dart';
-import 'Utility/Colors.dart';
+import 'Models/user.dart';
+import 'Utility/button_styles.dart';
+import 'Utility/colors.dart';
 
 void main() async{
   runApp(const MyApp());
@@ -160,10 +161,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   width: 350,
                   child: Column(
                     children: [
-                      SizedBox(height: 250,),
+                      SizedBox(height: 100,),
+                      Image.asset("assets/images/logo.png"),
+                      Text("TaskMate",style: TextStyle(fontSize: 25),),
+                      SizedBox(height: 100,),
                       WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
                       SizedBox(height: 15,),
-                      WidgetTemplates.getPasswordTextField(passwordFieldController, obscurePassword,"Пароль"),
+                      PasswordTextField(passwordFieldController, obscurePassword,"Пароль"),
                       SizedBox(height: 150,),
                       Container(
                           width: 350,
@@ -208,7 +212,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.backgroundColor,
-      appBar: WidgetTemplates.getAppBar("TaskMate"),
       body: getBody()
     );
   }

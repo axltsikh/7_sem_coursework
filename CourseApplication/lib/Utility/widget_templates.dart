@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Colors.dart';
+import 'colors.dart';
 
 class WidgetTemplates{
   static Widget getTextField(TextEditingController controller, String text){
@@ -10,42 +10,14 @@ class WidgetTemplates{
         cursorColor: MyColors.textColor,
         decoration: InputDecoration(
             border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide.none),
             filled: true,
             fillColor: MyColors.secondBackground,
             hintText: text),
         style: const TextStyle(
             fontFamily: 'SanFranciscoPro',
-            fontWeight: FontWeight.w500,
-            fontSize: 16));
-  }
-  static Widget getPasswordTextField(
-      TextEditingController controller, bool obscureText, String text) {
-    return TextField(
-        obscureText: obscureText,
-        enableSuggestions: false,
-        autocorrect: false,
-        obscuringCharacter: '*',
-        controller: controller,
-        cursorColor: MyColors.textColor,
-        decoration: InputDecoration(
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(22),
-                borderSide: BorderSide.none),
-            suffixIcon: IconButton(
-                icon: Icon(
-                    obscureText ? Icons.visibility : Icons.visibility_off,
-                    color: MyColors.firstAccent),
-                onPressed: () {
-                  obscureText=!obscureText;
-                }),
-            filled: true,
-            fillColor: MyColors.secondBackground,
-            hintText: text),
-        style: const TextStyle(
-            fontFamily: 'SanFranciscoPro',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
             fontSize: 16));
   }
   static PreferredSize getAppBar(String text){

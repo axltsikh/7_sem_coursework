@@ -48,6 +48,9 @@ class _HomePageState extends State<HomePage> {
                     label: 'Календарь',
                   ),
                 ],
+                header: SideNavigationBarHeader(
+                  image: Image.asset("assets/images/logo.png"), title: Text(""), subtitle: Text("")
+                ),
                 footer:SideNavigationBarFooter(
                   label: ListTile(
                     onTap: (){

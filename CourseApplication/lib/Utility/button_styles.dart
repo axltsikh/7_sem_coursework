@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-import 'Colors.dart';
+import 'colors.dart';
 
 class ButtonStyles {
 
   static ButtonStyle mainButton(){
     return ButtonStyle(
         backgroundColor: MaterialStateProperty.all(MyColors.firstAccent),
-        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)))
+        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)))
     );
   }
   static ButtonStyle secondaryButton(){
     return ButtonStyle(
         backgroundColor: MaterialStateProperty.all(MyColors.secondAccent),
-        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)))
+        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)))
     );
   }
 
@@ -23,12 +23,13 @@ class ButtonStyles {
       width: 330,
       height: 65,
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(22)),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
         color: MyColors.firstAccent,
       ),
       child: Text(text,
           style: TextStyle(
               fontSize: 16,
+              fontWeight: FontWeight.w900,
               color: MyColors.firstAccent)),
     );
   }
@@ -39,7 +40,7 @@ class ButtonStyles {
       width: 330,
       height: 65,
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(22)),
+        borderRadius: const BorderRadius.all(Radius.circular(15)),
         color: MyColors.firstAccent,
       ),
       child: Text(text,

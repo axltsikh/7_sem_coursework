@@ -1,16 +1,16 @@
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/CreateOrganizationPage.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Pages/create_organization_page.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../Models/Organization.dart';
-import '../Utility/Colors.dart';
-import '../Utility/Utility.dart';
+import '../Models/organization.dart';
+import '../Utility/colors.dart';
+import '../Utility/utility.dart';
 
 class JoinOrganizationPage extends StatefulWidget{
   @override

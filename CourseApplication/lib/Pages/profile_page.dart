@@ -2,18 +2,18 @@ import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/GetUserOrganisation.dart';
-import 'package:course_application/Pages/ChangePasswordPage.dart';
-import 'package:course_application/Pages/JoinOrganizationPage.dart';
-import 'package:course_application/Pages/OrganisationManagementPage.dart';
-import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
+import 'package:course_application/Pages/change_password_page.dart';
+import 'package:course_application/Pages/join_organization_page.dart';
+import 'package:course_application/Pages/organization_management_page.dart';
+import 'package:course_application/Utility/utility.dart';
+import 'package:course_application/Utility/widget_templates.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../Utility/Colors.dart';
+import '../Utility/colors.dart';
 
 class ProfilePage extends StatefulWidget{
   ProfilePage(){}

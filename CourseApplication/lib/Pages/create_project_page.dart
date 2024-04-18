@@ -2,18 +2,18 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
 import 'package:course_application/CustomModels/OrganisationMember.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Colors.dart';
-import 'AddProjectMemberDialog.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/colors.dart';
+import 'add_project_member_dialog.dart';
 import '../CustomModels/CustomProjectMember.dart';
-import '../Utility/Utility.dart';
+import '../Utility/utility.dart';
 
 class CreateProjectPage extends StatefulWidget{
   CreateProjectPage({super.key}){}
@@ -98,7 +98,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
               child: Column(
                 children: [
                   DateRangePickerWidget(
-                    theme: CalendarTheme(
+                    theme: const CalendarTheme(
                       selectedColor: Colors.blue,
                       dayNameTextStyle: TextStyle(color: Colors.black45, fontSize: 10),
                       inRangeColor: Color(0xFFD9EDFA),
@@ -155,9 +155,9 @@ class _CreateProjectPage extends State<CreateProjectPage> {
           padding: EdgeInsets.all(10),
           child: Column(
             children: [
-              WidgetTemplates.getTextField(titleController, "Название проекта"),
+              SizedBox(width: 370,child: WidgetTemplates.getTextField(titleController, "Название проекта"),),
               SizedBox(height: 15,),
-              WidgetTemplates.getTextField(descriptionController, "Описание проекта"),
+              SizedBox(width: 370,child: WidgetTemplates.getTextField(descriptionController, "Описание проекта"),),
               SizedBox(height: 5,),
               Padding(
                 padding: EdgeInsets.only(left: 5,right: 5,top: 5),
@@ -169,20 +169,20 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     child: ListView.builder(
                         shrinkWrap: true,
-                        itemCount: organisationMembers.length+2,
+                        itemCount: projectMembers.length+2,
                         itemBuilder:(BuildContext context, int index){
                           if(index==0){
-                            return Column(
+                            return const Column(
                               // margin: EdgeInsets.only(top: 15),
                                 children:[
                                   SizedBox(height: 15,),
                                   Text("Список участников",textAlign: TextAlign.center,style: TextStyle(
-                                      fontSize: 18,fontWeight: FontWeight.w500),),
+                                      fontSize: 18,fontWeight: FontWeight.w400),),
                                   SizedBox(height: 15,)
                                 ]
                             );
                           }
-                          if(index==organisationMembers.length+1){
+                          if(index==projectMembers.length+1){
                             return ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Colors.white,
@@ -196,7 +196,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                                     context: context,
                                     builder: (BuildContext context){
                                       return AlertDialog(
-                                        shape: RoundedRectangleBorder(
+                                        shape: const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(Radius.circular(30))),
                                         contentPadding: EdgeInsets.only(top: 10.0),
                                         content: AddProjectMemberDialog(projectMembers),
@@ -214,20 +214,16 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                               title: Text("Добавить участника"),
                             );
                           }
-                          CustomOrganisationMember member = organisationMembers[index-1];
-                          return Column(
-                            children: [
-                              ListTile(
-                                leading: CircleAvatar(
-                                  backgroundColor: MyColors.firstAccent,
-                                  child: Icon(
-                                    Icons.person,
-                                    color: MyColors.secondBackground,
-                                  ),
-                                ),
-                                title: Text(member.username),
+                          var member = projectMembers[index-1];
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: MyColors.firstAccent,
+                              child: Icon(
+                                Icons.person,
+                                color: MyColors.secondBackground,
                               ),
-                            ],
+                            ),
+                            title: Text(member.username),
                           );
                         }
                     ),
@@ -236,13 +232,13 @@ class _CreateProjectPage extends State<CreateProjectPage> {
               ),
               Container(
                 width: 350,
-                height: 60,
+                height: 70,
                 padding: EdgeInsets.only(top: 15),
                 child: TextButton(
-                  child: Text("Выбрать даты проекта",style: TextStyle(
+                  child: Text(startDate == "Начало" ? "Выбрать даты проекта" : Utility.getDate(startDate) + " - " + Utility.getDate(endDate),style: TextStyle(
                       fontFamily: 'SanFranciscoPro',
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 18,
                       color: MyColors.firstAccent),),
                   onPressed: chooseProjectDates,
                   style: ButtonStyles.secondaryButton(),
@@ -251,13 +247,13 @@ class _CreateProjectPage extends State<CreateProjectPage> {
               Container(height: 5,),
               Container(
                 width: 350,
-                height: 60,
+                height: 70,
                 padding: EdgeInsets.only(top: 15),
                 child: TextButton(
                   child: Text("Создать проект",style: TextStyle(
                       fontFamily: 'SanFranciscoPro',
                       fontWeight: FontWeight.w700,
-                      fontSize: 16,
+                      fontSize: 18,
                       color: MyColors.backgroundColor),),
                   onPressed: createProject,
                   style: ButtonStyles.mainButton(),

@@ -1,17 +1,17 @@
 import 'dart:convert';
+import 'package:course_application/widgets/password_textfield.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
+import 'package:course_application/Utility/widget_templates.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Colors.dart';
-import '../Utility/Utility.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/colors.dart';
+import '../Utility/utility.dart';
 
 class ChangePasswordPage extends StatefulWidget{
-  OrganisationManagementPage(){}
   @override
   State<StatefulWidget> createState() => ChangePasswordPageState();
 }
@@ -20,10 +20,10 @@ class ChangePasswordPageState extends State<ChangePasswordPage>{
   TextEditingController oldPasswordController = TextEditingController();
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController repeatNewPasswordController = TextEditingController();
+
   Future<void> changePassword() async{
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
-      print("Local db question");
       Utility.databaseHandler.updatePassword(md5.convert(utf8.encode(repeatNewPasswordController.text)).toString());
     }else{
       final String url = "http://${Utility.url}/user/changePassword";
@@ -73,11 +73,11 @@ class ChangePasswordPageState extends State<ChangePasswordPage>{
             child: Column(
               children: [
                 SizedBox(height: 50,),
-                WidgetTemplates.getPasswordTextField(oldPasswordController,true, "Введите старый пароль"),
+                PasswordTextField(oldPasswordController,true, "Введите старый пароль"),
                 SizedBox(height: 15,),
-                WidgetTemplates.getPasswordTextField(newPasswordController,true, "Введите новый пароль"),
+                PasswordTextField(newPasswordController,true, "Введите новый пароль"),
                 SizedBox(height: 15,),
-                WidgetTemplates.getPasswordTextField(repeatNewPasswordController,true, "Подтвердите новый пароль"),
+                PasswordTextField(repeatNewPasswordController,true, "Подтвердите новый пароль"),
                 SizedBox(height: 325,),
                 Container(
                   width: 350,

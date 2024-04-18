@@ -46,6 +46,8 @@ class _SingleProjectState extends State<SingleProjectPage>{
       double timeElapsedPercent = (timeEllapsed / alltime);
       if(timeElapsedPercent>1){
         return 100;
+      }else if(timeElapsedPercent < 0){
+        return 0;
       }
       return timeElapsedPercent*100;
     }catch(e){
@@ -75,6 +77,8 @@ class _SingleProjectState extends State<SingleProjectPage>{
       childSubTasks.clear();
       childSubTasksSnapshot.clear();
     await globalInitialization();
+    print(project.StartDate);
+    print(project.EndDate);
   }
   Future<void> globalInitialization() async{
     String creatorUrl = "http://${Utility.url}/project/getProjectCreatorUserID?projectID=${project.id}";
@@ -134,6 +138,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
     }
     return result;
   }
+
   List<ColumnChartData> groupMembersByTasks(){
     var buffer = groupBy(childSubTasks, (p0) => p0.username);
     List<ColumnChartData> result = [];
@@ -151,6 +156,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
       InitializeProject();
     }
   }
+
   Future<void> deleteChildSubTask(int index)async{
     String url = "http://${Utility.url}/web/deleteChildSubTask?id=$index";
     final response = await http.delete(Uri.parse(url));
@@ -158,11 +164,13 @@ class _SingleProjectState extends State<SingleProjectPage>{
       InitializeProject();
     }
   }
+
   Future<void> deleteParentSubTask(int index)async{
     String url = "http://${Utility.url}/web/deleteParentSubTask?id=$index";
     final response = await http.delete(Uri.parse(url));
     if(response.statusCode==200){
       InitializeProject();
+    }else{
     }
   }
 
@@ -362,13 +370,13 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
                           )),
-                          SizedBox(height: 10,),
-                          Text("Завершено ${getSubtaskPercentsForProgressBars().floor()} % задач",style: TextStyle(
+                          SizedBox(height: 5,),
+                          Text("Завершено ${getSubtaskPercentsForProgressBars().floor()}% задач",style: TextStyle(
                               fontSize: 17,
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
                           )),
-                          SizedBox(height: 10,),
+                          SizedBox(height: 5,),
                           Container(
                             margin: EdgeInsets.only(left:15,right:15),
                             alignment:Alignment.center,
@@ -380,7 +388,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               percent:getSubtaskPercentsForProgressBars()/100,
                               center: Text(
                                 getSubtaskPercentsForProgressBars().floor().toString() + "%",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white),
@@ -391,12 +399,12 @@ class _SingleProjectState extends State<SingleProjectPage>{
                             ),
                           ),
                           SizedBox(height: 10,),
-                          Text("Прошло ${getDaysPercentsForProgressBar().floor()} % времени",style: TextStyle(
+                          Text("Прошло ${getDaysPercentsForProgressBar().floor()}% времени",style: TextStyle(
                               fontSize: 17,
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
                           )),
-                          SizedBox(height: 10,),
+                          SizedBox(height: 5,),
                           Container(
                             margin: EdgeInsets.only(left:15,right:15),
                             alignment:Alignment.center,
@@ -407,8 +415,8 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               lineHeight: 20.0,
                               percent:getDaysPercentsForProgressBar().floor()/100,
                               center: Text(
-                                getDaysPercentsForProgressBar().floor().toString() + "%",
-                                style: TextStyle(
+                                "${getDaysPercentsForProgressBar().floor()}%",
+                                style: const TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white),
@@ -418,6 +426,16 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               backgroundColor: Colors.grey[300],
                             ),
                           ),
+                          Text("Начало проекта: " + Utility.getDate(project.StartDate.substring(0,10)),style: TextStyle(
+                              fontSize: 15,
+                              color: MyColors.textColor,
+                              fontWeight: FontWeight.w500
+                          )),
+                          Text("Завершение проекта: " + Utility.getDate(project.EndDate.substring(0,10)),style: TextStyle(
+                              fontSize: 15,
+                              color: MyColors.textColor,
+                              fontWeight: FontWeight.w500
+                          ))
                         ],
                       ),
                     )
@@ -477,7 +495,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                         trailing: PopupMenuButton<int>(
                                           onSelected: (value){
                                             if(value == 0){
-                                              deleteMember(index);
+                                              deleteMember(member.id);
                                             }
                                           },
                                           itemBuilder: (BuildContext context){
@@ -517,9 +535,9 @@ class _SingleProjectState extends State<SingleProjectPage>{
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height:5,),
-                    Row(
+                    const Row(
                       children: [
-                        const SizedBox(width: 15,),
+                        SizedBox(width: 15,),
                         Text("Участник/задача",textAlign: TextAlign.start,style: TextStyle(
                             fontSize: 25,
                             color: Colors.white,
@@ -556,9 +574,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                         borderColor: Colors.white,
                                         labelStyle: TextStyle(color: Colors.white),
                                         edgeLabelPlacement: EdgeLabelPlacement.shift,
-                                        // dateFormat: DateFormat.yMMM(),
                                         intervalType: DateTimeIntervalType.days,
-                                        // interval: 3,
                                       ),
                                       primaryYAxis: NumericAxis(
                                           borderColor: Colors.white,
@@ -621,6 +637,22 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                   title: Text(parentSubTasks[mainTaskIndex].title,style: TextStyle(
                                       color: MyColors.secondBackground
                                   ),),
+                                  trailing: PopupMenuButton<int>(
+                                    onSelected: (value){
+                                      if(value == 0){
+                                        deleteParentSubTask(parentSubTasks[mainTaskIndex].id);
+                                      }
+                                    },
+                                    iconColor: Colors.white,
+                                    itemBuilder: (BuildContext context){
+                                      return <PopupMenuEntry<int>>[
+                                        const PopupMenuItem<int>(
+                                          value: 0,
+                                          child: Text("Удалить задачу"),
+                                        ),
+                                      ];
+                                    },
+                                  ),
                                 ),
                               ),
                               ListView.builder(
@@ -636,7 +668,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                           trailing: PopupMenuButton<int>(
                                             onSelected: (value){
                                               if(value == 0){
-                                                deleteChildSubTask(subTaskIndex);
+                                                deleteChildSubTask(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].SubTaskID);
                                               }
                                             },
                                             itemBuilder: (BuildContext context){

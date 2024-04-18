@@ -5,7 +5,7 @@ import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../CustomModels/CustomProjectMember.dart';
-import '../Utility/Utility.dart';
+import '../Utility/utility.dart';
 
 
 class AddProjectMemberDialog extends StatefulWidget{
@@ -67,6 +67,58 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
   List<CustomProjectMember> projectMembers;
   @override
   Widget build(BuildContext context) {
+    return Container(
+        width: 250,
+        height: 350,
+        child: Padding(
+          padding: EdgeInsets.all(0),
+          child: Column(
+            children: [
+              Text("Выберите участника",style: TextStyle(
+                  fontSize: 18
+              ),),
+              SizedBox(height: 5,),
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(33),bottomRight: Radius.circular(33))
+                ),
+                height: 319,
+                child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: organisationMembers.length,
+                    itemBuilder: (BuildContext context,int index){
+                      return ListTile(
+                        onTap: (){
+                          CustomProjectMember buffer = CustomProjectMember(0, organisationMembers[index].username, organisationMembers[index].id,0);
+                          Navigator.pop(context,buffer);
+                        },
+                        title: Text(organisationMembers[index].username),
+                      );
+                      return ConstrainedBox(
+                        constraints: BoxConstraints(
+                            minHeight: 50
+                        ),
+                        child: Card(
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)
+                            ),
+                            child: InkWell(
+                              onTap: () => Navigator.pop(context,projectMembers[index]),
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(projectMembers[index].username),
+                              ),
+                            )
+                        ),
+                      );
+                    }
+                ),
+              )
+            ],
+          ),
+        )
+    );
     return Container(
         width: 250,
         height: 350,

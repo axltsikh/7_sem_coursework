@@ -1,18 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/CreateProjectPage.dart';
+import 'package:course_application/Pages/create_project_page.dart';
 import 'package:course_application/CustomModels/CustomProject.dart';
-import 'package:course_application/Pages/SingleProjectPage.dart';
-import 'package:course_application/Pages/SyncDialog.dart';
-import 'package:course_application/Utility/Utility.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
+import 'package:course_application/Pages/single_project_page.dart';
+import 'package:course_application/Pages/sync_dialog.dart';
+import 'package:course_application/Utility/utility.dart';
+import 'package:course_application/Utility/widget_templates.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../CustomModels/GetUserOrganisation.dart';
-import '../Utility/Colors.dart';
+import '../Utility/colors.dart';
 
 class ProjectsPage extends StatefulWidget{
   ProjectsPage(){}

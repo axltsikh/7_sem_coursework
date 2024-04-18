@@ -1,13 +1,14 @@
 import 'dart:convert';
-import 'package:course_application/Utility/Colors.dart';
-import 'package:course_application/Utility/WidgetTemplates.dart';
+import 'package:course_application/Utility/colors.dart';
+import 'package:course_application/Utility/widget_templates.dart';
+import 'package:course_application/widgets/password_textfield.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../Utility/ButtonStyles.dart';
-import '../Utility/Utility.dart';
+import '../Utility/button_styles.dart';
+import '../Utility/utility.dart';
 
 class RegisterPage extends StatefulWidget{
   @override
@@ -63,9 +64,9 @@ class _RegisterPage extends State<RegisterPage>{
                 SizedBox(height: 200,),
                 WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
                 const SizedBox(height: 15,),
-                WidgetTemplates.getPasswordTextField(passwordFieldController,true, "Пароль"),
+                PasswordTextField(passwordFieldController,true, "Пароль"),
                 const SizedBox(height: 15,),
-                WidgetTemplates.getPasswordTextField(repeatPasswordFieldController,true, "Повторите пароль"),
+                PasswordTextField(repeatPasswordFieldController,true, "Повторите пароль"),
                 SizedBox(height: 150,),
                 Container(
                   width: 400,

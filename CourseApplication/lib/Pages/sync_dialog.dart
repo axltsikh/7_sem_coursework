@@ -1,13 +1,15 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Models/SubTask.dart';
-import 'package:course_application/manyUsageTemplate/CupertinoButtonTemplate.dart';
+import 'package:course_application/Models/subtask.dart';
+import 'package:course_application/Utility/button_styles.dart';
+import 'package:course_application/Utility/colors.dart';
+import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import '../CustomModels/CustomProject.dart';
-import '../Utility/Utility.dart';
-import 'ProjectsPage.dart';
+import '../Utility/utility.dart';
+import 'project_page.dart';
 class SyncDialog extends StatefulWidget{
   @override
   State<StatefulWidget> createState() => _SyncDialog();
@@ -51,9 +53,9 @@ class _SyncDialog extends State<SyncDialog> {
   bool state=false;
   Widget getState(){
     if(!state){
-      return Text("Желаете провести синхронизацию?");
+      return Text("Желаете провести\nсинхронизацию?",style: TextStyle(fontSize: 17),textAlign: TextAlign.center,);
     }else{
-      return Center(child: CircularProgressIndicator());
+      return Center(child: CircularProgressIndicator(color: MyColors.firstAccent,));
     }
   }
   Widget buttons(){
@@ -61,8 +63,16 @@ class _SyncDialog extends State<SyncDialog> {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          CupertinoButtonTemplate("Да", () {sync();}),
-          CupertinoButtonTemplate("Нет", () {decline();})
+          SizedBox(width: 80,child: TextButton(
+            onPressed: sync,
+            child: Text("Да",style: TextStyle(color: Colors.white,fontWeight: FontWeight.w500,fontSize: 16),),
+            style: ButtonStyles.mainButton(),
+          ),),
+          SizedBox(width: 80,child: TextButton(
+            onPressed: decline,
+            child: Text("Нет",style: TextStyle(color: Colors.white,fontSize: 16),),
+            style: ButtonStyles.mainButton(),
+          ),),
         ],
       );
     }else{
@@ -74,16 +84,16 @@ class _SyncDialog extends State<SyncDialog> {
   Widget build(BuildContext context) {
     return Container(
         width: 250,
-        height: 200,
+        height: 180,
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: EdgeInsets.zero,
           child: Column(
             children: [
-              Text("Синхронизация"),
-              Divider(thickness: 1,color: Colors.blue,),
               SizedBox(height: 15,),
+              Text("Синхронизация",style: TextStyle(fontSize: 18),),
+              SizedBox(height: 10,),
               getState(),
-              SizedBox(height: 25,),
+              SizedBox(height: 15,),
               buttons()
             ],
           ),

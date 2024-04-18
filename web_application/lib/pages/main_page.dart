@@ -321,6 +321,10 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return ContextMenuOverlay(
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor:Colors.white,
+          title: Text("Проекты"),
+        ),
         backgroundColor: MyColors.backgroundColor,
           body: ListView.builder(
             itemCount: projects.length,
