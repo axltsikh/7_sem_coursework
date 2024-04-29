@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
@@ -22,9 +21,9 @@ class WidgetTemplates{
   }
   static PreferredSize getAppBar(String text){
     return PreferredSize(
-      preferredSize: Size.fromHeight(120),
+      preferredSize: const Size.fromHeight(120),
       child: Container(
-        margin: EdgeInsets.only(top: 50),
+        margin: const EdgeInsets.only(top: 50),
         width: 324,
         height: 66,
         child: Card(
@@ -36,7 +35,7 @@ class WidgetTemplates{
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(text,textAlign: TextAlign.center,style: TextStyle(
+              Text(text,textAlign: TextAlign.center,style: const TextStyle(
                   fontSize: 20
               ),)
             ],
@@ -47,9 +46,9 @@ class WidgetTemplates{
   }
   static PreferredSize getAppBarWithReturnButton(String text,BuildContext context){
     return PreferredSize(
-      preferredSize: Size.fromHeight(120),
+      preferredSize: const Size.fromHeight(120),
       child: Container(
-        margin: EdgeInsets.only(top: 50),
+        margin: const EdgeInsets.only(top: 50),
         width: 324,
         height: 66,
         child: Card(
@@ -70,8 +69,8 @@ class WidgetTemplates{
                         child: Container(
                             margin: const EdgeInsets.only(left: 16),
                             child: const Icon(Icons.arrow_back_ios))),
-                    SizedBox(width: 70,),
-                    Text(text,textAlign: TextAlign.center,style: TextStyle(
+                    const SizedBox(width: 70,),
+                    Text(text,textAlign: TextAlign.center,style: const TextStyle(
                         fontSize: 20
                     ),),
                   ],

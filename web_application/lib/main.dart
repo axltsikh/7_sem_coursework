@@ -24,7 +24,10 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: MyColors.firstAccent
 
+        ),
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Trello'),

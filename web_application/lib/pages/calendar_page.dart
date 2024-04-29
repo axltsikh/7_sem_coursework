@@ -90,6 +90,12 @@ class _CalendarPageState extends State<CalendarPage>{
   Widget build(BuildContext context) {
     return Scaffold(
       body: SfCalendar(
+        timeSlotViewSettings: TimeSlotViewSettings(
+          timeTextStyle:  TextStyle(
+            color: Colors.red
+          ),
+          timeRulerSize: 0
+        ),
         view: CalendarView.schedule,
         dataSource: EventDataSource(getEventInfo()),
         monthViewSettings: const MonthViewSettings(

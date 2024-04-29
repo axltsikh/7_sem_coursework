@@ -78,6 +78,8 @@ class DatabaseHandler{
       }
     });
   }
+
+  //uploading totally new project
   Future<void> uploadProjectsData() async{
     print("uploadProjectsData");
     final db= await database;
@@ -100,9 +102,9 @@ class DatabaseHandler{
       int userID = 0;
       final List<Map<String,dynamic>> creatoruserID = await db.rawQuery("""select OrganisationMember.userID from ProjectMember inner join OrganisationMember on OrganisationMember.id=ProjectMember.organisationMemberID 
           inner join Project on Project.creatorID = ProjectMember.id where Project.id = ?""",[element.id]);
-      creatoruserID.forEach((element) {
+      for (var element in creatoruserID) {
         userID = element.putIfAbsent("userID", () => null);
-      });
+      }
       final String url = "http://${Utility.url}/reverseSync/uploadProject";
       final response = await http.post(Uri.parse(url),headers: <String,String>{
         'Content-Type': 'application/json;charset=UTF-8',
@@ -114,7 +116,7 @@ class DatabaseHandler{
         'endDate' : element.EndDate
       })).then((response){
         if(response.statusCode==200){
-          print("new project id: " + response.body + "localprojectid: " + element.id.toString());
+          print("new project id: ${response.body}localprojectid: ${element.id}");
           uploadProjectMembers(element.id,int.parse(response.body),element.creatorID);
         }else{
           Fluttertoast.showToast(msg: "Произошла ошибка project!");
@@ -127,14 +129,14 @@ class DatabaseHandler{
     final db= await database;
     List<ProjectMember> projectMembers = [];
     int globalCreator = 0;
-    final String url = "http://${Utility.url}/reverseSync/uploadProject?id="+globalProjectID.toString();
+    final String url = "http://${Utility.url}/reverseSync/uploadProject?id=$globalProjectID";
     final response = await http.get(Uri.parse(url));
     globalCreator = int.parse(response.body);
     members.addAll({creatorID : globalCreator});
     final List<Map<String,dynamic>> maps = await db.rawQuery("select id,projectID,organisationMemberID from ProjectMember where projectID = ? and id != ?",[localProjectID,creatorID]);
-    maps.forEach((element) {
+    for (var element in maps) {
       projectMembers.add(ProjectMember.fromJson(element));
-    });
+    }
     uploadLoop(globalProjectID, members, projectMembers).then((value){
         members = value;
         print("loopend");
@@ -182,7 +184,7 @@ class DatabaseHandler{
         'Content-Type': 'application/json;charset=UTF-8',
       }, body: jsonEncode(element)).then((response){
         if (response.statusCode == 200){
-          print("parenttaskid: " + response.body);
+          print("parenttaskid: ${response.body}");
           parents.addAll({element.id:int.parse(response.body)});
           // uploadChildSubTasks(globalProjectID, element.id,int.parse(response.body),members);
         } else {
@@ -196,9 +198,9 @@ class DatabaseHandler{
     print("uploadChildSubTasks");
     print(parents.length);
     parents.forEach((key, value){
-      print("key: " + key.toString() + " value: " + value.toString());
+      print("key: $key value: $value");
     });
-    print("projectID:" + globalProjectID.toString() + "globalparentid: " );
+    print("projectID:${globalProjectID}globalparentid: " );
     final db= await database;
     List<ChildSubTaskModel> childSub = [];
       final List<Map<String,dynamic>> childmaps = await db.rawQuery("""select 
@@ -223,7 +225,7 @@ class DatabaseHandler{
           isTotallyDone,members[childelement.putIfAbsent("executorID", () => null)]!,childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
           ));
     });
-    print("length: " + childSub.length.toString());
+    print("length: ${childSub.length}");
     for(var element in childSub){
       // await db.rawQuery("UPDATE SubTask set changed=0,created=0,weakcreated=0 where id=?",[element.subTaskID]);
       final String url = "http://${Utility.url}/reverseSync/uploadChildSubTask";
@@ -240,7 +242,7 @@ class DatabaseHandler{
   }
 
 
-
+  //parent tasks and childtasks created to existing project
   Future<void> uploadUnboundedParentSubTasks()async {
     print("uploadUnBoundedParentSubTasks");
     final db= await database;
@@ -263,7 +265,7 @@ class DatabaseHandler{
   }
   Future<Map<int,int>> unboundedBuffer(List<SubTask> subTasksBuffer,Map<int,int> parents)async{
     for(var element in subTasksBuffer){
-      print("uploadUnboundedParentSubTasks iteration: " + element.title.toString());
+      print("uploadUnboundedParentSubTasks iteration: ${element.title}");
       final String url = "http://${Utility.url}/reverseSync/uploadParentSubTask";
       final response = await http.post(
           Uri.parse(url), headers: <String, String>{
@@ -271,14 +273,14 @@ class DatabaseHandler{
       }, body: jsonEncode(element));
       if (response.statusCode == 200) {
         parents.addAll({element.id:int.parse(response.body)});
-        print("globalparentid: " + response.body + " localparentid: " + element.id.toString());
+        print("globalparentid: ${response.body} localparentid: ${element.id}");
       } else {
         print("error");
       }
     }
     return parents;
   }
-  Future<void> uploadUnboundedChildSubTasks(Map<int,int> parents)async{
+  Future<void> uploadUnboundedChildSubTasks(Map<int,int> parents)async  {
     print("uploadUnboundedChildSubTasks");
     final db= await database;
     List<ChildSubTaskModel> childSub = [];
@@ -296,17 +298,16 @@ class DatabaseHandler{
                                                                       inner join Project on Project.id = SubTask.projectID and Project.changed is null
 																	                                    where created = 1""");
     childmaps.toList().forEach((childelement) {
-      print(childelement.putIfAbsent("executorID", () => null));
       bool isDone = parseIntToBool(childelement.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
-      childSub.add(new ChildSubTaskModel(0, parents[childelement.putIfAbsent("parent", () => null)]!,
+      childSub.add(ChildSubTaskModel(0, parents[childelement.putIfAbsent("parent", () => null)]!,
         childelement.putIfAbsent("projectID", () => null) , childelement.putIfAbsent("title", () => null), isDone,
         isTotallyDone,childelement.putIfAbsent("executorID", () => null),childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
       ));
     });
     for(var element in childSub){
-      print("uploadUnboundedChildSubTasks iteration: " + element.title.toString());
-      print("info: " + element.parent.toString() + " name: " + element.title);
+      print("uploadUnboundedChildSubTasks iteration: ${element.title}");
+      print("info: ${element.parent} name: ${element.title}");
       final String url = "http://${Utility.url}/reverseSync/uploadChildSubTask";
       final response = await http.post(
           Uri.parse(url), headers: <String, String>{
@@ -320,6 +321,8 @@ class DatabaseHandler{
     }
   }
 
+
+  //child tasks created to existing parent tasks
   Future<void> uploadWeakCreatedChildSubTasks()async{
     print("uploadWeakCreatedChildSubTasks");
     final db= await database;
@@ -337,6 +340,7 @@ class DatabaseHandler{
                                                                       from SubTask inner Join SubTaskExecutor on SubTask.id = SubTaskExecutor.subTaskID
                                                                       where weakcreated = 1""");
     childmaps.toList().forEach((childelement) {
+      print("completionDate: " + childelement.putIfAbsent("completionDate", () => null));
       print(childelement.putIfAbsent("executorID", () => null));
       bool isDone = parseIntToBool(childelement.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
@@ -346,7 +350,7 @@ class DatabaseHandler{
       ));
     });
     childSub.forEach((element) async{
-      print("uploadWeakCreatedChildSubTasks iteration: " + element.title);
+      print("uploadWeakCreatedChildSubTasks iteration: ${element.title}");
       final String url = "http://${Utility.url}/reverseSync/uploadChildSubTask";
       final response = await http.post(
           Uri.parse(url), headers: <String, String>{
@@ -370,15 +374,18 @@ class DatabaseHandler{
                                                                       SubTask.title as title,
                                                                       SubTask.isDone as isDone,
                                                                       SubTask.isTotallyDone as isTotallyDone,
-                                                                      SubTask.completionDate,
-                                                                      SubTask.deadLine
+                                                                      SubTask.completionDate as completionDate,
+                                                                      SubTask.deadLine as deadLine
                                                                       from SubTask where changed = 1""");
     childmaps.toList().forEach((childelement) {
+      print(childelement);
+      print("completionDate: " + childelement.putIfAbsent("completionDate", () => null));
+
       bool isDone = parseIntToBool(childelement.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(childelement.putIfAbsent("isTotallyDone", () => null));
       childSub.add(SubTask(childelement.putIfAbsent("subTaskID", () => null), childelement.putIfAbsent("parent", () => null),
         childelement.putIfAbsent("projectID", () => null) , childelement.putIfAbsent("title", () => null), isDone,
-        isTotallyDone,childelement.putIfAbsent("completionDate", () => null),childelement.putIfAbsent("deadLine", () => null)
+        isTotallyDone,childelement.putIfAbsent("completionDate", () => null) ,childelement.putIfAbsent("deadLine", () => null)
       ));
     });
     childSub.forEach((element) async{
@@ -428,13 +435,13 @@ class DatabaseHandler{
     getSubTasksExecutors(db);
   }
   Future<void> getOrg(Database db) async{
-    final String url = "http://${Utility.url}/profile/getUserOrganisation?id=" + Utility.user.id.toString();
+    final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
-      print("getUserOrganisation db handler: " + response.body);
+      print("getUserOrganisation db handler: ${response.body}");
       Map<String,dynamic> bodyBuffer = jsonDecode(response.body);
       var buffer = GetUserOrganisation.fromJson(bodyBuffer);
-      Organization orgBuffer = new Organization(buffer.id, buffer.name, buffer.password, buffer.creatorID);
+      Organization orgBuffer = Organization(buffer.id, buffer.name, buffer.password, buffer.creatorID);
       db.insert("Organisation",orgBuffer.toJson(),conflictAlgorithm: ConflictAlgorithm.replace);
       getOrgMembers(db, orgBuffer);
     }
@@ -443,14 +450,14 @@ class DatabaseHandler{
     }
   }
   Future<void> getOrgMembers(Database db,Organization org) async{
-    final String url = "http://${Utility.url}/local/getOrganisationMemberRows?id=" + org.id.toString();
+    final String url = "http://${Utility.url}/local/getOrganisationMemberRows?id=${org.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
-        print("getOrgMembers: " + response.body);
+      for (var element in bodyBuffer) {
+        print("getOrgMembers: ${response.body}");
         db.insert("OrganisationMember", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
       getAllOrganisationUsers(db, org);
     }
     else{
@@ -458,56 +465,56 @@ class DatabaseHandler{
     }
   }
   Future<void> getAllOrganisationUsers(Database db,Organization org)async{
-    final String url = "http://${Utility.url}/local/getAllOrganisationUsersRows?id=" + org.id.toString();
+    final String url = "http://${Utility.url}/local/getAllOrganisationUsersRows?id=${org.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
-      print("getAllOrganisationUsers: " + response.body);
+      print("getAllOrganisationUsers: ${response.body}");
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         db.insert("AppUser", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
     }
     else{
       return;
     }
   }
   Future<void> getProjMembers(Database db)async{
-    final String url = "http://${Utility.url}/local/getProjectMemberRows?id=" + Utility.user.id.toString();
+    final String url = "http://${Utility.url}/local/getProjectMemberRows?id=${Utility.user.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
-      print("getProjMembers: " + response.body);
+      print("getProjMembers: ${response.body}");
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         db.insert("ProjectMember", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
     }
     else{
       return;
     }
   }
   Future<void> getProjects(Database db)async{
-    final String url = "http://${Utility.url}/local/getProjectRows?id=" + Utility.user.id.toString();
+    final String url = "http://${Utility.url}/local/getProjectRows?id=${Utility.user.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
-      print("getProjects: " + response.body);
+      print("getProjects: ${response.body}");
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         db.insert("Project", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
     }
     else{
       return;
     }
   }
   Future<void> getSubTasks(Database db)async{
-    final String url = "http://${Utility.url}/local/getSubTasksRows?id=" + Utility.user.id.toString();
+    final String url = "http://${Utility.url}/local/getSubTasksRows?id=${Utility.user.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
-      print("getSubTasks: " + response.body);
+      print("getSubTasks: ${response.body}");
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         db.insert("SubTask", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
     }
     else{
       return;
@@ -515,13 +522,13 @@ class DatabaseHandler{
   }
   Future<void> getSubTasksExecutors(Database db)async{
     print("subTasksGet");
-    final String url = "http://${Utility.url}/local/getSubTasksExecutorRows?id=" + Utility.user.id.toString();
+    final String url = "http://${Utility.url}/local/getSubTasksExecutorRows?id=${Utility.user.id}";
     final response = await http.get(Uri.parse(url));
     if(response.statusCode == 200){
       List<dynamic> bodyBuffer = jsonDecode(response.body);
-      bodyBuffer.forEach((element) {
+      for (var element in bodyBuffer) {
         db.insert("SubTaskExecutor", element,conflictAlgorithm: ConflictAlgorithm.replace);
-      });
+      }
     }
     else{
       return;
@@ -595,7 +602,7 @@ class DatabaseHandler{
     maps.toList().forEach((element) {
       bool isDone = parseIntToBool(element.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(element.putIfAbsent("isTotallyDone", () => null));
-      subTasksBuffer.add(new SubTask(element.putIfAbsent("id", () => null), element.putIfAbsent("parent", () => null),
+      subTasksBuffer.add(SubTask(element.putIfAbsent("id", () => null), element.putIfAbsent("parent", () => null),
           element.putIfAbsent("projectID", () => null), element.putIfAbsent("title", () => null), isDone, isTotallyDone,"",""));
     });
     return subTasksBuffer;
@@ -610,15 +617,16 @@ class DatabaseHandler{
                                                                 inner join AppUser on AppUser.id=OrganisationMember.userID 
                                                                 inner join SubTask on SubTask.id = SubTaskExecutor.subTaskID and SubTask.projectID=? and SubTask.parent is not null""",[projectID]);
     maps.toList().forEach((element) {
+      print(element);
       bool isDone = parseIntToBool(element.putIfAbsent("isDone", () => null));
       bool isTotallyDone = parseIntToBool(element.putIfAbsent("isTotallyDone", () => null));
-      subTasksBuffer.add(new SubTaskModel(element.putIfAbsent("subTaskExecutorID", () => null),
+      subTasksBuffer.add(SubTaskModel(element.putIfAbsent("subTaskExecutorID", () => null),
           element.putIfAbsent("subTaskID", () => null),
           element.putIfAbsent("username", () => null),
           element.putIfAbsent("title", () => null),
           isDone, isTotallyDone,
           element.putIfAbsent("parent", () => null),
-          element.putIfAbsent("completionDate", () => null),
+          element.putIfAbsent("completionDate", () => "date") == null ? "" : element.putIfAbsent("completionDate", () => "date"),
           element.putIfAbsent("deadLine", () => null)));
     });
     return subTasksBuffer;
@@ -701,32 +709,32 @@ class DatabaseHandler{
     String projectNumber="";
     String memberNumber ="";
     var organisationMember = await db.rawQuery("select * from OrganisationMember WHERE OrganisationMember.userID=? and OrganisationMember.deleted=0",[Utility.user.id]);
-    organisationMember.forEach((element) {
+    for (var element in organisationMember) {
       var a =element.putIfAbsent("deleted", () => null);
       member = OrganisationMember(element.putIfAbsent('id', () => null) as int,
           element.putIfAbsent('userID', () => null) as int,
           element.putIfAbsent('organisationID', () => null) as int,
           parseIntToBool(a as int)
           );
-    });
+    }
     db.rawQuery("insert into Project(title,decription,startDate,endDate,isDone,changed,creatorID) values(?,?,?,?,?,?,?)",[title,desc,startDate,endDate,0,1,null]);
     var a = await db.rawQuery("select seq from sqlite_sequence where name=?",["Project"]);
-    a.forEach((element) {
+    for (var element in a) {
       projectNumber = element.putIfAbsent("seq", () => null).toString();
-    });
+    }
     db.rawQuery("insert into ProjectMember(projectID,changed,organisationMemberID) values (?,?,?)",[projectNumber,1,member.id]);
     a = await db.rawQuery("select seq from sqlite_sequence where name=?",["ProjectMember"]);
-    a.forEach((element) {
+    for (var element in a) {
       memberNumber = element.putIfAbsent("seq", () => null).toString();
-    });
+    }
     db.rawQuery("update Project set creatorID = ? where id = ?",[memberNumber,projectNumber]);
     addProjectMembers(members, projectNumber);
   }
   Future<void> addProjectMembers(List<CustomProjectMember> members,String projectID) async{
     final db= await database;
-    members.forEach((element) {
+    for (var element in members) {
       db.rawQuery("insert into ProjectMember(projectID,changed,organisationMemberID) values(?,?,?)",[projectID,1,element.organisationID]);
-    });
+    }
   }
   Future<void> addParentSubTask(SubTask subtask)async{
     print("subtask add");
@@ -749,9 +757,9 @@ class DatabaseHandler{
     }
     String subTaskNumber="";
     var a = await db.rawQuery("select seq from sqlite_sequence where name=?",["SubTask"]);
-    a.forEach((element) {
+    for (var element in a) {
       subTaskNumber = element.putIfAbsent("seq", () => null).toString();
-    });
+    }
     addSubTaskExecutor(subTaskNumber, subtaskexecutor);
   }
   Future<void> addSubTaskExecutor(String subTaskNumber,CustomProjectMember subtaskexecutor)async{
@@ -766,22 +774,25 @@ class DatabaseHandler{
   Future<void> commitChanges(List<SubTaskModel> buffer)async{
     print("commit");
     final db = await database;
-    buffer.forEach((element) {
+    for (var element in buffer) {
       print(element.SubTaskID);
       print(element.isDone);
+      print(element.isTotallyDone);
       if(element.isDone==true){
-        db.rawQuery("Update SubTask set isDone = 1,isTotallyDone = 1,changed = 1 where id = ?",[element.SubTaskID]);
+        print("setting totallydone: " + element.title);
+        db.rawQuery("Update SubTask set isDone = 1,isTotallyDone = 1,completionDate = ?,changed = 1 where id = ?",[DateTime.now().toString().substring(0,10),element.SubTaskID]);
       }else if(element.isDone==false){
-        db.rawQuery("Update SubTask set isDone = 0,changed = 1,completionDate = ? where id = ?",[DateTime.now(),element.SubTaskID]);
+        print("setting not done: " + element.title);
+        db.rawQuery("Update SubTask set isDone = 0,changed = 1 where id = ?",[element.SubTaskID]);
       }
-    });
+    }
   }
   Future<void> offerChanges(List<SubTaskModel> buffer) async{
     print("offer");
     final db = await database;
-    buffer.forEach((element) {
+    for (var element in buffer) {
       db.rawQuery("UPDATE SubTask set isDone = ?,changed = 1 where id = ?",[element.isDone,element.SubTaskID]);
-    });
+    }
   }
   //endregion
 }

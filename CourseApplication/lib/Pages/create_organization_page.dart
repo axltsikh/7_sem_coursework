@@ -10,6 +10,8 @@ import '../Utility/colors.dart';
 
 
 class CreateOrganizationPage extends StatefulWidget{
+  const CreateOrganizationPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _CreateOrganizationPage();
 }
@@ -57,29 +59,29 @@ class _CreateOrganizationPage extends State<CreateOrganizationPage> {
       appBar: WidgetTemplates.getAppBarWithReturnButton("Создание организации", context),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(height: 50,width: 150,),
+              const SizedBox(height: 50,width: 150,),
               WidgetTemplates.getTextField(organizationNameController, "Название организации"),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               PasswordTextField(organizationPasswordController,true, "Пароль организации"),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               PasswordTextField(organizationRepeatPasswordController,true, "Подтвердите пароль организации"),
               Container(height: 25,),
               Container(
                 width: 350,
                 height: 60,
-                padding: EdgeInsets.only(top:15),
+                padding: const EdgeInsets.only(top:15),
                 child: TextButton(
                   onPressed: createOrganisation,
+                  style: ButtonStyles.mainButton(),
                   child: Text("Создать организацию",style: TextStyle(
                       fontFamily: 'SanFranciscoPro',
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
                       color: MyColors.backgroundColor),),
-                  style: ButtonStyles.mainButton(),
                 ),
               )
             ],

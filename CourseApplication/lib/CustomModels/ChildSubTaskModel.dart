@@ -6,7 +6,7 @@ class ChildSubTaskModel{
   bool isDone;
   bool isTotallyDone;
   int executorID;
-  String completionDate;
+  String? completionDate;
   String deadLine;
   ChildSubTaskModel(this.subTaskID,this.parent,this.projectID,this.title,this.isDone,this.isTotallyDone,this.executorID,this.completionDate,this.deadLine);
   ChildSubTaskModel.fromJson(Map<String,dynamic> json)

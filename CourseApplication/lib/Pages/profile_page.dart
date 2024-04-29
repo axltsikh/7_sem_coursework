@@ -16,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../Utility/colors.dart';
 
 class ProfilePage extends StatefulWidget{
-  ProfilePage(){}
+  const ProfilePage({super.key});
   @override
   State<StatefulWidget> createState() => _ProfilePageState();
 }
@@ -35,7 +35,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
     if(connectivityResult == ConnectivityResult.none){
       return;
     }
-    Future.delayed(Duration(seconds: 5)).then((value)async{
+    Future.delayed(const Duration(seconds: 5)).then((value)async{
       print("duration finished");
       await Utility.databaseHandler.GetAllData();
     });
@@ -57,12 +57,13 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
         userOrganisation = org;
       });
     }else{
-      final String url = "http://${Utility.url}/profile/getUserOrganisation?id=" + Utility.user.id.toString();
+      final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
       final response = await http.get(Uri.parse(url));
       if(response.statusCode == 200){
         Map<String,dynamic> bodyBuffer = jsonDecode(response.body);
         setState(() {
           userOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
+          Utility.getUserOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
         });
       }
       else{
@@ -92,7 +93,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
         Fluttertoast.showToast(msg: "Произошла ошибка");
       }
     }else{
-      final String url = "http://${Utility.url}/organisation/leave?id=" + Utility.user.id.toString();
+      final String url = "http://${Utility.url}/organisation/leave?id=${Utility.user.id}";
       final response = await http.delete(Uri.parse(url));
       if(response.statusCode==200){
         setState(() {
@@ -114,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
   Future<void> synchronize()async{
     Fluttertoast.showToast(msg: "Синхронизация началсь");
     await uploadMyData().then((value) {
-      Future.delayed(Duration(seconds: 3)).then((value)async{
+      Future.delayed(const Duration(seconds: 3)).then((value)async{
         await getGlobalData().then((value){
           Fluttertoast.showToast(msg: "Синхронизация прошла успешно");
         });
@@ -136,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: 25,),
+              const SizedBox(height: 25,),
               Container(
                 width: 90,
                 height: 90,
@@ -166,7 +167,13 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                     if(userOrganisation.id!=-1){
                       Navigator.push(context, CupertinoPageRoute(builder: (builder) => OrganisationManagementPage(userOrganisation)));
                     }else{
-                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => JoinOrganizationPage()));
+                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => const JoinOrganizationPage())).then((value){
+                        if(value == 1){
+                          getOrganisation();
+                        }else{
+                          print("value not 1");
+                        }
+                      });
                     }
                   },
                   shape: const RoundedRectangleBorder(
@@ -237,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                 width: 324,
                 child: ListTile(
                   onTap: () {
-                    Navigator.push(context, CupertinoPageRoute(builder: (builder) => ChangePasswordPage()));
+                    Navigator.push(context, CupertinoPageRoute(builder: (builder) => const ChangePasswordPage()));
                   },
                   tileColor: MyColors.secondBackground,
                   leading: Icon(Icons.lock_outline,

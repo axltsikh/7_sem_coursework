@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
-import 'package:course_application/CustomModels/OrganisationMember.dart';
 import 'package:course_application/Utility/widget_templates.dart';
-import 'package:course_application/widgets/cupertino_button_template.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -16,7 +13,7 @@ import '../CustomModels/CustomProjectMember.dart';
 import '../Utility/utility.dart';
 
 class CreateProjectPage extends StatefulWidget{
-  CreateProjectPage({super.key}){}
+  const CreateProjectPage({super.key});
   @override
   State<StatefulWidget> createState() => _CreateProjectPage();
 }
@@ -57,8 +54,8 @@ class _CreateProjectPage extends State<CreateProjectPage> {
       }));
       if(response.statusCode==200){
         print(projectMembers.length);
-        print("createdProjectID: " + response.body);
-        if(projectMembers.length==0){
+        print("createdProjectID: ${response.body}");
+        if(projectMembers.isEmpty){
           Fluttertoast.showToast(msg: "Проект успешно создан!");
           Navigator.pop(context,1);
         }else{
@@ -80,7 +77,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
       "organisationMemberID" : member.organisationID.toString(),
       "projectID" : projectID
     }));
-    print("responseStatesCode: " + response.statusCode.toString());
+    print("responseStatesCode: ${response.statusCode}");
     if(response.statusCode==200){
       Fluttertoast.showToast(msg: "Проект успешно создан!");
       Navigator.pop(context,1);
@@ -116,7 +113,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                     onDateRangeChanged: (dateRange){
                       setState(() {
                         startDate = dateRange!.start.toString().substring(0,10);
-                        endDate = dateRange!.end.toString().substring(0,10);
+                        endDate = dateRange.end.toString().substring(0,10);
                       });
                     },
                   ),
@@ -126,12 +123,12 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                       onPressed: (){
                         Navigator.of(context).pop();
                       },
+                      style: ButtonStyles.mainButton(),
                       child: Text("Подтвердить выбор",style: TextStyle(
                           fontFamily: 'SanFranciscoPro',
                           fontWeight: FontWeight.w700,
                           fontSize: 16,
                           color: MyColors.backgroundColor),),
-                      style: ButtonStyles.mainButton(),
                     ),
                   )
                 ],
@@ -152,17 +149,17 @@ class _CreateProjectPage extends State<CreateProjectPage> {
       appBar: WidgetTemplates.getAppBarWithReturnButton("Создание проекта",context),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(10),
+          padding: const EdgeInsets.all(10),
           child: Column(
             children: [
               SizedBox(width: 370,child: WidgetTemplates.getTextField(titleController, "Название проекта"),),
-              SizedBox(height: 15,),
+              const SizedBox(height: 15,),
               SizedBox(width: 370,child: WidgetTemplates.getTextField(descriptionController, "Описание проекта"),),
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               Padding(
-                padding: EdgeInsets.only(left: 5,right: 5,top: 5),
-                child: Container(
-                  height: 360,
+                padding: const EdgeInsets.only(left: 5,right: 5,top: 5),
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height*0.35,
                   child: Card(
                     color: Colors.white,
                     elevation: 0,
@@ -198,7 +195,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                                       return AlertDialog(
                                         shape: const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(Radius.circular(30))),
-                                        contentPadding: EdgeInsets.only(top: 10.0),
+                                        contentPadding: const EdgeInsets.only(top: 10.0),
                                         content: AddProjectMemberDialog(projectMembers),
                                       );
                                     }
@@ -211,7 +208,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
                                   }
                                 });
                               },
-                              title: Text("Добавить участника"),
+                              title: const Text("Добавить участника"),
                             );
                           }
                           var member = projectMembers[index-1];
@@ -233,30 +230,30 @@ class _CreateProjectPage extends State<CreateProjectPage> {
               Container(
                 width: 350,
                 height: 70,
-                padding: EdgeInsets.only(top: 15),
+                padding: const EdgeInsets.only(top: 15),
                 child: TextButton(
-                  child: Text(startDate == "Начало" ? "Выбрать даты проекта" : Utility.getDate(startDate) + " - " + Utility.getDate(endDate),style: TextStyle(
+                  onPressed: chooseProjectDates,
+                  style: ButtonStyles.secondaryButton(),
+                  child: Text(startDate == "Начало" ? "Выбрать даты проекта" : "${Utility.getDate(startDate)} - ${Utility.getDate(endDate)}",style: TextStyle(
                       fontFamily: 'SanFranciscoPro',
                       fontWeight: FontWeight.w500,
                       fontSize: 18,
                       color: MyColors.firstAccent),),
-                  onPressed: chooseProjectDates,
-                  style: ButtonStyles.secondaryButton(),
                 ),
               ),
               Container(height: 5,),
               Container(
                 width: 350,
                 height: 70,
-                padding: EdgeInsets.only(top: 15),
+                padding: const EdgeInsets.only(top: 15),
                 child: TextButton(
+                  onPressed: createProject,
+                  style: ButtonStyles.mainButton(),
                   child: Text("Создать проект",style: TextStyle(
                       fontFamily: 'SanFranciscoPro',
                       fontWeight: FontWeight.w700,
                       fontSize: 18,
                       color: MyColors.backgroundColor),),
-                  onPressed: createProject,
-                  style: ButtonStyles.mainButton(),
                 ),
               )
             ],

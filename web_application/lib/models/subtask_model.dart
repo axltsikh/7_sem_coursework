@@ -6,7 +6,9 @@ class SubTaskModel{
   bool isDone;
   bool isTotallyDone;
   int parent;
+  String deadLine = "";
   String? completionDate = "";
+
   SubTaskModel(this.SubTaskExecutorID,this.SubTaskID,this.username,this.title,this.isDone,this.isTotallyDone,this.parent);
   SubTaskModel.fromJson(Map<String,dynamic> json)
       :SubTaskExecutorID = json['subTaskExecutorID'],
@@ -16,6 +18,7 @@ class SubTaskModel{
         isDone = json['isDone'],
         isTotallyDone = json['isTotallyDone'],
         parent = json['parent'],
+        deadLine = json['deadLine'],
         completionDate = json['completionDate'];
   Map<String,dynamic> toJson() => {
     'subTaskExecutorID' : SubTaskExecutorID,
@@ -25,5 +28,7 @@ class SubTaskModel{
     'isDone' : isDone,
     'isDisTotallyDoneone' : isTotallyDone,
     'parent' : parent,
+    'deadLine': deadLine,
+    'completionDate' : completionDate
   };
 }

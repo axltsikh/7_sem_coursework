@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'package:course_application/Utility/widget_templates.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +11,8 @@ import '../Utility/utility.dart';
 
 
 class CalendarPage extends StatefulWidget{
+  const CalendarPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _CalendarPageState();
 
@@ -23,7 +23,7 @@ class _CalendarPageState extends State<CalendarPage>{
   List<List<SubTask>> childSubTasks = [];
 
   Future<void> GetProjects() async{
-    final response = await http.post(Uri.http('${Utility.url}','/web/getAllCreatorProjects'),headers: <String,String>{
+    final response = await http.post(Uri.http(Utility.url,'/web/getAllCreatorProjects'),headers: <String,String>{
       "Access-Control-Allow-Origin": "*",
       'Content-Type': 'application/json;charset=UTF-8',
     },body: jsonEncode(<String,String>{
@@ -37,7 +37,7 @@ class _CalendarPageState extends State<CalendarPage>{
         buffer.add(CustomProject.fromJson(element));
       }
       setState(() {
-        projects = buffer.where((element) => element.isDone ==false).toList();
+        projects = buffer.where((element) => element.isDone == false).toList();
         projects += buffer.where((element) => element.isDone == true).toList();
       });
       await GetChildSubTasks();
@@ -47,7 +47,7 @@ class _CalendarPageState extends State<CalendarPage>{
   }
   Future<void> GetChildSubTasks() async{
     projects.forEach((element) async {
-      final response = await http.post(Uri.http('${Utility.url}','/web/GetAllChildSubTasks'),headers: <String,String>{
+      final response = await http.post(Uri.http(Utility.url,'/web/GetAllChildSubTasks'),headers: <String,String>{
         "Access-Control-Allow-Origin": "*",
         'Content-Type': 'application/json;charset=UTF-8',
       },body: jsonEncode(<String,String>{
@@ -91,9 +91,9 @@ class _CalendarPageState extends State<CalendarPage>{
     return Scaffold(
       backgroundColor: MyColors.backgroundColor,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(120),
+        preferredSize: const Size.fromHeight(120),
         child: Container(
-          margin: EdgeInsets.only(top: 50),
+          margin: const EdgeInsets.only(top: 50),
           width: 324,
           height: 66,
           child: Card(
@@ -127,17 +127,18 @@ class _CalendarPageState extends State<CalendarPage>{
   List<Event> getEventInfo(){
     final List<Event> events = <Event>[];
     for(var a in projects){
-      events.add(Event("Срок выполнения проекта: " + a.Title,DateTime.parse(a.EndDate.substring(0,10)),MyColors.fourthAccent));
+      events.add(Event("Срок выполнения проекта: ${a.Title}",DateTime.parse(a.EndDate.substring(0,10)),MyColors.fourthAccent));
     }
     for(var a in childSubTasks){
       for(var b in a){
         if(!events.any((element) => element.eventName.contains(b.title))){
           if(b.isTotallyDone){
-            events.add(Event("Выполнена задача: " + b.title,DateTime.parse(b.completionDate.toString().substring(0,10)),MyColors.greenColor));
+            print(b.id);
+            events.add(Event("Выполнена задача: ${b.title}",DateTime.parse(b.completionDate.toString().substring(0,10)),MyColors.greenColor));
           }else if(b.isDone){
-            events.add(Event("Предложено к изменению: " + b.title,DateTime.parse(b.completionDate.toString().substring(0,10)),Colors.yellow.shade100));
+            events.add(Event("Предложено к изменению: ${b.title}",DateTime.parse(b.completionDate.toString().substring(0,10)),Colors.yellow.shade100));
           }else{
-            events.add(Event("Срок выполнения задачи: " + b.title,DateTime.parse(b.deadLine.substring(0,10)),MyColors.fourthAccent));
+            events.add(Event("Срок выполнения задачи: ${b.title}",DateTime.parse(b.deadLine.substring(0,10)),MyColors.fourthAccent));
           }
         }
       }

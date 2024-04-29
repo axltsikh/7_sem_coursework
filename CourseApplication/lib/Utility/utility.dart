@@ -4,9 +4,9 @@ import 'package:course_application/Utility/database_handler.dart';
 import '../Models/user.dart';
 
 class Utility{
-  static String url = "10.0.2.2:1234";
+  static String url = "192.168.150.55:1234";
   //10.0.2.2:1234 emulator
-  //192.168.144.55:1234 phone
+  //192.168.48.1:1234 phone
   static int asd = 1;
   static GetUserOrganisation getUserOrganisation = GetUserOrganisation(0, "", "", 0, 0);
   static User user = User(0,"","");
@@ -31,7 +31,7 @@ class Utility{
       case "11":month = "ноября";break;
       default: month = "декабря";break;
     }
-    return day + " " + month + " " + year;
+    return "$day $month $year";
   }
 
 }

@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/GetUserOrganisation.dart';
 import 'package:course_application/Utility/widget_templates.dart';
-import 'package:course_application/widgets/cupertino_button_template.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +11,7 @@ import '../Utility/colors.dart';
 import '../Utility/utility.dart';
 
 class OrganisationManagementPage extends StatefulWidget{
-  OrganisationManagementPage(this.organisation){}
+  OrganisationManagementPage(this.organisation, {super.key});
   GetUserOrganisation organisation;
   @override
   State<StatefulWidget> createState() => _OrganisationManagementPage(organisation);
@@ -21,7 +19,7 @@ class OrganisationManagementPage extends StatefulWidget{
 class _OrganisationManagementPage extends State<OrganisationManagementPage> {
   _OrganisationManagementPage(this.organisation){
     getOrganisationMembers();
-    print("orgID: " + organisation.id.toString());
+    print("orgID: ${organisation.id}");
   }
 
   @override
@@ -40,7 +38,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
       var organisationMembersBuffer = await Utility.databaseHandler.getOrganisationMember(Utility.user.id);
-      print("orgmemlen: " + organisationMembersBuffer.length.toString());
+      print("orgmemlen: ${organisationMembersBuffer.length}");
       setState(() {
         organisationMembers = organisationMembersBuffer;
         controller.text = organisation.name;
@@ -55,11 +53,11 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
       if(response.statusCode==200){
         organisationMembers.clear();
         List<dynamic> bodyBuffer = jsonDecode(response.body);
-        bodyBuffer.forEach((bodyBufferElement) {
+        for (var bodyBufferElement in bodyBuffer) {
           if(CustomOrganisationMember.fromJson(bodyBufferElement).id!=organisation.creatorID){
             organisationMembers.add(CustomOrganisationMember.fromJson(bodyBufferElement));
           }
-        });
+        }
       }else{
         print("Произошла ошибка");
       }
@@ -74,7 +72,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
       Fluttertoast.showToast(msg: "Проверьте подключение к сети!");
       return;
     }
-    final String url = "http://${Utility.url}/organisation/removeMember?id=" + member.id.toString();
+    final String url = "http://${Utility.url}/organisation/removeMember?id=${member.id}";
     final response = await http.delete(Uri.parse(url));
     if(response.statusCode==200){
       print("successs");
@@ -82,7 +80,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
         organisationMembers.remove(member);
       });
     }else{
-      print("Error: " + response.body);
+      print("Error: ${response.body}");
     }
   }
   Future<void> changeOrgName()async{
@@ -120,8 +118,8 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
           children: [
             Container(height: 15,),
             Padding(
-              padding: EdgeInsets.only(left: 5,right: 5,top: 5),
-              child: Container(
+              padding: const EdgeInsets.only(left: 5,right: 5,top: 5),
+              child: SizedBox(
                 height: 650,
                 child: Card(
                   color: Colors.white,
@@ -132,7 +130,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
                       itemCount: organisationMembers.length+1,
                       itemBuilder:(BuildContext context, int index){
                         if(index==0){
-                          return Column(
+                          return const Column(
                             // margin: EdgeInsets.only(top: 15),
                               children:[
                                 SizedBox(height: 15,),
@@ -160,7 +158,7 @@ class _OrganisationManagementPage extends State<OrganisationManagementPage> {
 
                                   deleteOrganisationMember(member);
                                 },
-                              ) : Text(""),
+                              ) : const Text(""),
                             ),
                           ],
                         );

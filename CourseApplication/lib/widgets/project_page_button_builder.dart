@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
 class ProjectPageButtonBuilder extends StatefulWidget{
+  const ProjectPageButtonBuilder({super.key});
+
   CheckBoxBuilder(){}
 
   @override

@@ -1,5 +1,5 @@
-import 'package:course_application/CustomModels/CustomProjectMember.dart';
 import 'package:flutter/material.dart';
+import '../Models/custom_project_member.dart';
 
 
 
@@ -41,24 +41,6 @@ class _AddSubTaskExecutorDialog extends State<AddSubTaskExecutorDialog> {
                           Navigator.pop(context,projectMembers[index]);
                         },
                         title: Text(projectMembers[index].username),
-                      );
-                      return ConstrainedBox(
-                        constraints: const BoxConstraints(
-                            minHeight: 50
-                        ),
-                        child: Card(
-                            elevation: 10,
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)
-                            ),
-                            child: InkWell(
-                              onTap: () => Navigator.pop(context,projectMembers[index]),
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(projectMembers[index].username),
-                              ),
-                            )
-                        ),
                       );
                     }
                 ),

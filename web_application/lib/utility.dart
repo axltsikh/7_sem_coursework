@@ -2,6 +2,7 @@ import 'Models/user.dart';
 
 class Utility{
 
+  //192,168
   static User user = User(0,"","");
   static String url = "127.0.0.1:1234";
   static String getDate(String date){

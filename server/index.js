@@ -545,7 +545,6 @@ app.post("/web/endProject",function(req,response){
         
     });
 })
-app.get
 app.delete("/web/deleteMember",function(req,response){
 
 
@@ -594,6 +593,29 @@ app.delete("/web/deleteParentSubTask",function(req,response){
             response.end("Произошла ошибка");
         }
         
+    });
+})
+app.post("/web/updateSubTask",function(req,response){
+    console.log("updatesubtask call");
+    request = new sql.Request();
+    console.log(JSON.stringify(req.body));
+    let buffer = JSON.parse(JSON.stringify(req.body));
+    console.log("updateSubTask: " + buffer.id);
+    console.log("updateSubTask: " + buffer.title);
+    console.log("updateSubTask: " + buffer.deadLine);
+    console.log("updateSubTask: " + buffer.executorID);
+    request.input('id',buffer.id);
+    request.input('title',buffer.title);
+    request.input('deadLine',buffer.deadLine);
+    request.input('executorID',buffer.executorID);
+    request.execute('UpdateSubTask',(err,result)=>{
+        if(result.returnValue == 1){
+            response.statusCode=200;
+            response.end("SubTasl updated successfully");
+        }else{
+            response.statusCode = 500;
+            response.end("Error while updating subtask");
+        }
     });
 })
 
@@ -729,10 +751,12 @@ app.post("/reverseSync/uploadChildSubTask",function(req,response){
 app.post("/reverseSync/uploadSimplyChangedChildSubTask",function(req,response){
     console.log("uploadSimplyChangedChildSubTask call");
     let buffer = JSON.parse(JSON.stringify(req.body));
+    console.log("uploadSimplyChangedChildSubTask: " + buffer.id + " " + buffer.isDone + " " + buffer.isTotallyDone);
     request = new sql.Request();
     request.input('id',buffer.id);
     request.input('isDone',buffer.isDone);
     request.input('isTotallyDone',buffer.isTotallyDone);
+    request.input("completionDate",buffer.completionDate);
     request.execute('UploadSimplyChangedSubTask',(err,result)=>{
         if(result.returnValue!=-1){
             response.statusCode=200

@@ -3,7 +3,6 @@ import 'package:course_application/Utility/colors.dart';
 import 'package:course_application/Utility/widget_templates.dart';
 import 'package:course_application/widgets/password_textfield.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +10,8 @@ import '../Utility/button_styles.dart';
 import '../Utility/utility.dart';
 
 class RegisterPage extends StatefulWidget{
+  const RegisterPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _RegisterPage();
 }
@@ -56,36 +57,38 @@ class _RegisterPage extends State<RegisterPage>{
     return Scaffold(
       backgroundColor: MyColors.backgroundColor,
       appBar: WidgetTemplates.getAppBarWithReturnButton("Регистрация", context),
-      body: Center(
-          child: Container(
-            width: 350,
-            child: Column(
-              children: [
-                SizedBox(height: 200,),
-                WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
-                const SizedBox(height: 15,),
-                PasswordTextField(passwordFieldController,true, "Пароль"),
-                const SizedBox(height: 15,),
-                PasswordTextField(repeatPasswordFieldController,true, "Повторите пароль"),
-                SizedBox(height: 150,),
-                Container(
-                  width: 400,
-                  height: 60,
-                  margin: EdgeInsets.all(15),
-                  child: TextButton(
-                    onPressed: registerClick,
-                    style: ButtonStyles.mainButton(),
-                    child: Text("Создать аккаунт",
-                        style: TextStyle(
-                            fontFamily: 'SanFranciscoPro',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: MyColors.backgroundColor)),
-                  ),
-                )
-              ],
-            ),
-          )
+      body: SingleChildScrollView(
+        child: Center(
+            child: SizedBox(
+              width: 350,
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height*0.2,),
+                  WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
+                  const SizedBox(height: 15,),
+                  PasswordTextField(passwordFieldController,true, "Пароль"),
+                  const SizedBox(height: 15,),
+                  PasswordTextField(repeatPasswordFieldController,true, "Повторите пароль"),
+                  SizedBox(height: MediaQuery.of(context).size.height*0.15,),
+                  Container(
+                    width: 400,
+                    height: 60,
+                    margin: const EdgeInsets.all(15),
+                    child: TextButton(
+                      onPressed: registerClick,
+                      style: ButtonStyles.mainButton(),
+                      child: Text("Создать аккаунт",
+                          style: TextStyle(
+                              fontFamily: 'SanFranciscoPro',
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              color: MyColors.backgroundColor)),
+                    ),
+                  )
+                ],
+              ),
+            )
+        ),
       ),
     );
   }

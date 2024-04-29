@@ -1,82 +1,53 @@
 import 'dart:convert';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:course_application/Pages/add_subtask_executor_dialog.dart';
-import 'package:course_application/CustomModels/CustomProjectMember.dart';
-import 'package:course_application/Models/subtask.dart';
-import 'package:course_application/Utility/colors.dart';
-import 'package:course_application/Utility/widget_templates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_date_range_picker/flutter_date_range_picker.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import '../CustomModels/CustomProject.dart';
-import '../Utility/button_styles.dart';
-import '../Utility/utility.dart';
+import 'package:web_application/Models/subtask_model.dart';
+import '../Models/custom_project.dart';
+import '../Models/custom_project_member.dart';
+import '../Models/subtask.dart';
+import '../button_styles.dart';
+import '../my_colors.dart';
+import '../utility.dart';
+import '../widget_templates.dart';
+import 'add_subtask_executor_dialog.dart';
 
 class AddSubTaskDialog extends StatefulWidget{
-  AddSubTaskDialog(this.project,this.projectMembers,this.parentID, {super.key});
+  AddSubTaskDialog(this.project,this.projectMembers,this.subTask, {super.key});
   CustomProject project;
   List<CustomProjectMember> projectMembers;
-  int parentID;
+  SubTaskModel subTask;
   @override
-  State<StatefulWidget> createState() => _AddSubTaskDialog(project,projectMembers,parentID);
+  State<StatefulWidget> createState() => _AddSubTaskDialog(project,projectMembers,subTask);
 }
 
 class _AddSubTaskDialog extends State<AddSubTaskDialog> {
-  _AddSubTaskDialog(CustomProject project,this.projectMembers,int parentID){
-    subtask.parent=parentID;
-    subtask.ProjectID=project.id;
-  }
-  CustomProjectMember subTaskExecutors = CustomProjectMember(0,"Выбрать исполнителя",0,0);
+  _AddSubTaskDialog(CustomProject project,this.projectMembers,this.subTask);
+
+
   List<CustomProjectMember> projectMembers;
   TextEditingController controller = TextEditingController();
-  SubTask subtask = SubTask.empty();
+  SubTaskModel subTask;
+  CustomProjectMember newSubTaskExecutor = CustomProjectMember(-1,"",-1,-1);
 
-  Future<void> addChildSubTask()async{
-    if(controller.text.length < 3){
-      Fluttertoast.showToast(msg: "Минимальная длина названия подзадачи - 3 символа!");
-      return;
-    }else if(subTaskExecutors.username==""){
-      Fluttertoast.showToast(msg: "Выберите исполнителя!");
-      return;
-    }
-
-    final connectivityResult = await (Connectivity().checkConnectivity());
-
-    if(connectivityResult == ConnectivityResult.none){
-      var a = await Utility.databaseHandler.getParenSubTaskCondition(subtask.parent!);
-      if(a.created==1){
-        Utility.databaseHandler.addChildSubTask(subtask,subTaskExecutors,1);
-      }else{
-        Utility.databaseHandler.addChildSubTask(subtask,subTaskExecutors,0);
-      }
-      Navigator.pop(context,true);
-    }else{
-      print(jsonEncode(subtask));
-      final String url = "http://${Utility.url}/project/addChildSubTask";
-      final response = await http.post(
-          Uri.parse(url), headers: <String, String>{
-        'Content-Type': 'application/json;charset=UTF-8',
-      }, body: jsonEncode(subtask));
-      if (response.statusCode == 200) {
-        addSubTaskExecutor(int.parse(response.body));
-      } else {
-        Fluttertoast.showToast(msg: "Произошла ошибка");
-      }
-    }
-
-  }
-  Future<void> addSubTaskExecutor(int subtaskID)async{
-    String url = "http://${Utility.url}/project/addSubTaskExecutor?subtaskID=$subtaskID";
+  Future<void> updateSubTask()async{
+    final String url = "http://${Utility.url}/web/updateSubTask";
     final response = await http.post(
         Uri.parse(url), headers: <String, String>{
       'Content-Type': 'application/json;charset=UTF-8',
-    }, body: jsonEncode(subTaskExecutors));
-    if(response.statusCode==200){
-      Navigator.pop(context,true);
+    },body: jsonEncode({
+      'id':subTask.SubTaskID.toString(),
+      'title':controller.text.toString(),
+      'deadLine':subTask.deadLine.toString(),
+      'executorID' : newSubTaskExecutor.id == -1 ? subTask.SubTaskID : newSubTaskExecutor.id
+    }));
+    if(response.statusCode == 200){
+      print("Success");
+      Navigator.of(context).pop(true);
     }else{
-      Fluttertoast.showToast(msg: "Произошла ошибка");
+      print("error");
     }
+
   }
   void chooseSubtaskDeadLine()async{
     var a = await showDialog(
@@ -105,8 +76,8 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
                       initialDisplayedDate:DateTime.now(),
                       onDateRangeChanged: (dateRange){
                         setState(() {
-                          subtask.deadLine = dateRange!.start.toString().substring(0,10);
-                          subtask.deadLine = dateRange.end.toString().substring(0,10);
+                          subTask.deadLine = dateRange!.start.toString().substring(0,10);
+                          subTask.deadLine = dateRange.end.toString().substring(0,10);
                         });
                       },
                     ),
@@ -139,13 +110,13 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
         padding: EdgeInsets.zero,
         child: Column(
           children: [
-            const Text("Добавить подзадачу",style: TextStyle(
+            const Text("Обновить подзадачу",style: TextStyle(
               fontSize: 20
             ),),
             const SizedBox(height: 15,),
            SizedBox(
              height: 60,
-             child:  WidgetTemplates.getTextField(controller, "Введите название"),
+             child:  WidgetTemplates.getTextField(controller, subTask.title),
            ),
             const SizedBox(height: 15,),
             SizedBox(
@@ -168,12 +139,13 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
                   );
                   if (a != null) {
                     setState(() {
-                      subTaskExecutors = a;
+                      newSubTaskExecutor = a;
+                      subTask.username = newSubTaskExecutor.username;
                     });
                   }
                 },
                 style: ButtonStyles.mainButton(),
-                child: Text(subTaskExecutors.username,
+                child: Text(subTask.username,
                     style: TextStyle(
                         fontFamily: 'SanFranciscoPro',
                         fontWeight: FontWeight.w700,
@@ -190,7 +162,7 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
                   chooseSubtaskDeadLine();
                 },
                 style: ButtonStyles.mainButton(),
-                child: Text("Выбрать дедлайн",
+                child: Text(Utility.getDate(subTask.deadLine.toString().substring(0,10)),
                     style: TextStyle(
                         fontFamily: 'SanFranciscoPro',
                         fontWeight: FontWeight.w700,
@@ -204,8 +176,7 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
               width: 260,
               child: TextButton(
                 onPressed: (){
-                  subtask.title=controller.text;
-                  addChildSubTask();
+                  updateSubTask();
                 },
                 style: ButtonStyles.mainButton(),
                 child: Text("Сохранить",

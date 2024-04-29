@@ -12,7 +12,6 @@ import 'package:course_application/Utility/widget_templates.dart';
 import 'package:course_application/widgets/checkbox_builder.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../Models/subtask.dart';
@@ -20,7 +19,7 @@ import '../Models/user.dart';
 import '../Utility/colors.dart';
 
 class SingleProjectPage extends StatefulWidget{
-  SingleProjectPage(this.project, {super.key}){}
+  SingleProjectPage(this.project, {super.key});
   CustomProject project;
   List<SubTask> parentSubTasks = [];
   @override
@@ -34,6 +33,8 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
   }
   @override
   void initState() {
+    print("datetime: " + DateTime.timestamp().toString());
+    print("datetime: " + DateTime.now().toString());
     super.initState();
     tabController = TabController(
         length: 2,
@@ -117,6 +118,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
       List<SubTaskModel> buffer = [];
       for(int i =0;i<childSubTasks.length;i++){
         if(childSubTasks[i].isDone!=childSubTasksSnapshot[i]){
+          print(childSubTasks[i].title);
           buffer.add(childSubTasks[i]);
         }
       }
@@ -147,6 +149,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
   Future<void> commitChanges() async{
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
+      print("commiting changes");
       Utility.databaseHandler.commitChanges(childSubTasks.where((element) => element.isTotallyDone==false).toList());
       InitializeProject();
     }else{
@@ -168,7 +171,9 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     for (var element in creatorBuffer) {
       projectCreator = element;
     }
+    print(projectCreator.id);
     if (projectCreator.id == Utility.user.id) {
+      print("im the creator");
       setState(() {
         ButtonText = "Сохранить изменения";
       });
@@ -179,10 +184,10 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
       });
     }
     var projectMembersBuffer = await Utility.databaseHandler.getAllProjectMembers(project.id);
-    projectMembersBuffer.forEach((element) {
+    for (var element in projectMembersBuffer) {
       print(element.deleted);
       print(element.username);
-    });
+    }
     setState(() {
       projectMembers = projectMembersBuffer.where((element) => element.deleted==0).toList();
     });
@@ -199,7 +204,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     });
   }
   Future<void> globalInitialization() async{
-    String creatorUrl = "http://${Utility.url}/project/getProjectCreatorUserID?projectID=" + project.id.toString();
+    String creatorUrl = "http://${Utility.url}/project/getProjectCreatorUserID?projectID=${project.id}";
     final fourthReponse = await http.get(Uri.parse(creatorUrl));
     List<dynamic> creatorBuffer = jsonDecode(fourthReponse.body);
     for (var element in creatorBuffer) {
@@ -215,36 +220,36 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
         ButtonText = "Предложить изменения";
       });
     }
-    String url = "http://${Utility.url}/project/getAllProjectMembers?projectID=" + project.id.toString();
+    String url = "http://${Utility.url}/project/getAllProjectMembers?projectID=${project.id}";
     final response = await http.get(Uri.parse(url));
     List<dynamic> bodyBuffer = jsonDecode(response.body);
-    bodyBuffer.forEach((bodyBufferElement) {
+    for (var bodyBufferElement in bodyBuffer) {
       setState(() {
         projectMembers.add(CustomProjectMember.fromJson(bodyBufferElement));
       });
-      projectMembers.forEach((element) {
+      for (var element in projectMembers) {
         print(element.deleted);
-      });
+      }
       setState(() {
         projectMembers = projectMembers.where((element) => element.deleted==0).toList();
       });
-    });
+    }
     print(projectMembers.length);
-    String parenturl = "http://${Utility.url}/project/getProjectParentTasks?projectID=" + project.id.toString();
+    String parenturl = "http://${Utility.url}/project/getProjectParentTasks?projectID=${project.id}";
     final secondResponse = await http.get(Uri.parse(parenturl));
     List<dynamic> parentTasksBuffer = jsonDecode(secondResponse.body);
-    parentTasksBuffer.forEach((element) {
+    for (var element in parentTasksBuffer) {
       setState(() {
         parentSubTasks.add(SubTask.fromJson(element));
       });
-    });
-    final thirdResponse = await http.get(Uri.parse("http://${Utility.url}/project/getProjectChildTasks?projectID=" + project.id.toString()));
+    }
+    final thirdResponse = await http.get(Uri.parse("http://${Utility.url}/project/getProjectChildTasks?projectID=${project.id}"));
     List<dynamic> childTasksBuffer = jsonDecode(thirdResponse.body);
     for (var element in childTasksBuffer) {
       print("childTasksBuffer iteration");
       setState(() {
         childSubTasks.add(SubTaskModel.fromJson(element));
-        print("childLenthg: " + childSubTasks.length.toString());
+        print("childLenthg: ${childSubTasks.length}");
         childSubTasksSnapshot.add(SubTaskModel.fromJson(element).isDone);
       });
     }
@@ -252,16 +257,16 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
 
   Widget addMemberButton(){
     if(project.isDone==true){
-      return Text("");
+      return const Text("");
     }
     if(buttonFlag==false){
-      return Text("");
+      return const Text("");
     }else{
       if (projectCreator.id != Utility.user.id) {
-        return Text("");
+        return const Text("");
       }
       return ListTile(
-        title: Text("Добавить участника"),
+        title: const Text("Добавить участника"),
         onTap: () async {
           var a = await showDialog(
               context: context,
@@ -286,7 +291,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
   }
   Widget footerButton(){
     if(project.isDone==true){
-      return Text("");
+      return const Text("");
     }
     return Container(
       decoration: BoxDecoration(
@@ -296,23 +301,17 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
       child: IconButton(
         color: MyColors.firstAccent,
         onPressed: saveChanges,
-        icon: Icon(Icons.check,color: Colors.white,),
+        icon: const Icon(Icons.check,color: Colors.white,),
       ),
-    );
-    return CupertinoButton.filled(
-        padding: EdgeInsets.fromLTRB(20,0,20,0),
-        child: Text(ButtonText),
-        onPressed: saveChanges,
-        borderRadius: BorderRadius.circular(15)
     );
   }
   Widget addTaskButton(){
     if(project.isDone==true){
-      return Text("");
+      return const Text("");
     }
     return ListTile(
       leading: Icon(Icons.add,color: MyColors.firstAccent,),
-      title: Text("Добавить задачу"),
+      title: const Text("Добавить задачу"),
       onTap: () async {
         var a = await showDialog(
             context: context,
@@ -355,10 +354,10 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                 ExpansionTile(
                   backgroundColor: MyColors.firstAccent,
                   collapsedBackgroundColor: MyColors.firstAccent,
-                  shape: const RoundedRectangleBorder( //<-- SEE HERE
+                  shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
                   ),
-                  collapsedShape: const RoundedRectangleBorder( //<-- SEE HERE
+                  collapsedShape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
                   ),
                   title: Text(parentSubTasks[mainTaskIndex].title,style: const TextStyle(
@@ -379,7 +378,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                     child: Row(
                       children: [
                         IconButton(
-                          icon: Icon(Icons.add,color: Colors.white,),
+                          icon: const Icon(Icons.add,color: Colors.white,),
                           onPressed: () async{
                             var a = await showDialog(
                                 context: context,
@@ -410,35 +409,38 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                     Container(
                       width: double.infinity,
                       color: Colors.white,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
-                        itemBuilder: (BuildContext context,int subTaskIndex){
-                          return
-                            Container(
-                              margin: const EdgeInsets.only(left: 10),
-                              width: 150,
-                              child:  ListTile(
-                                tileColor: MyColors.secondBackground,
-                                title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title,style: TextStyle(
-                                  fontSize: 18,fontWeight: FontWeight.w400
-                                ),),
-                                subtitle: Text("Исполнитель: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username}\nДедлайн: ${Utility.getDate(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].deadLine)}",style: TextStyle(
-                                    fontSize: 15,fontWeight: FontWeight.w400
-                                )),
-                                trailing: Container(
-                                  height: double.infinity,
-                                  child: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
+                      child: SizedBox(
+                        height: 400,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,
+                          itemBuilder: (BuildContext context,int subTaskIndex){
+                            return
+                              Container(
+                                margin: const EdgeInsets.only(left: 10),
+                                width: 150,
+                                child:  ListTile(
+                                  tileColor: MyColors.secondBackground,
+                                  title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title,style: const TextStyle(
+                                      fontSize: 18,fontWeight: FontWeight.w400
+                                  ),),
+                                  subtitle: Text("Исполнитель: ${childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username}\nДедлайн: ${Utility.getDate(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].deadLine)}",style: const TextStyle(
+                                      fontSize: 15,fontWeight: FontWeight.w400
+                                  )),
+                                  trailing: SizedBox(
+                                    height: double.infinity,
+                                    child: CheckBoxBuilder(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex],projectCreator.id==Utility.user.id),
+                                  ),
+                                  isThreeLine: true,
                                 ),
-                                isThreeLine: true,
-                              ),
-                            );
-                        },
-                      ),
+                              );
+                          },
+                        ),
+                      )
                     ),
                   ],
                 ),
-                SizedBox(height: 5,)
+                const SizedBox(height: 5,)
               ],
             );
           },
@@ -447,7 +449,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     );
   }
   Widget membersList(){
-    return Container(
+    return SizedBox(
       height: 550,
       child: Card(
         elevation: 0,
@@ -473,7 +475,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
     return Scaffold(
       backgroundColor: MyColors.backgroundColor,
       floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 55),
+        margin: const EdgeInsets.only(bottom: 55),
         child: footerButton(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
@@ -492,19 +494,19 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                   labelColor: MyColors.firstAccent,
                   unselectedLabelColor: Colors.black,
                   controller: tabController,
-                  tabs: [
-                    Container(width: 150,child:Tab(
+                  tabs: const [
+                    SizedBox(width: 150,child:Tab(
                       text: "Задачи",
                     ),),
-                    Container(
+                    SizedBox(
                       width: 150,
                       child: Tab(
                         text: "Участники",
                       ),
                     )
                   ]),
-              SizedBox(height: 5,),
-              Container(
+              const SizedBox(height: 5,),
+              SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: 550,
                 child: TabBarView(

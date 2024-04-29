@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../Utility/colors.dart';
 
 class PasswordTextField extends StatefulWidget{
-  PasswordTextField(this.controller,this.obscureText,this.text);
+  PasswordTextField(this.controller,this.obscureText,this.text, {super.key});
   TextEditingController controller;
   bool obscureText;
   String text;

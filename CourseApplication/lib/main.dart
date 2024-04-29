@@ -6,7 +6,6 @@ import 'package:course_application/Utility/widget_templates.dart';
 import 'package:course_application/Pages/register_page.dart';
 import 'package:course_application/widgets/password_textfield.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
@@ -54,11 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
         final connectivityResult = await (Connectivity().checkConnectivity());
         if(connectivityResult == ConnectivityResult.none){
           isLoading = false;
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>MainPage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const MainPage()));
         }else{
           await Utility.databaseHandler.uploadData().then((value){
             isLoading = false;
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>MainPage()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const MainPage()));
           });
         }
       }else{
@@ -82,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
       List<User> users = await Utility.databaseHandler.getUser(loginFieldController.text);
-      if(users.length!=0){
+      if(users.isNotEmpty){
         if(users[0].Password == md5.convert(utf8.encode(passwordFieldController.text)).toString()){
           Utility.user.id=users[0].id;
           Utility.user.Username=users[0].Username;
@@ -96,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
             loginFieldController.text = "";
             passwordFieldController.text = "";
           });
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>MainPage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const MainPage()));
         }else{
           Fluttertoast.showToast(msg: "Неверное имя пользователя или пароль!",toastLength: Toast.LENGTH_SHORT,);
         }
@@ -121,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
           value.setString("Password", Utility.user.Password);
         });
         await Utility.databaseHandler.uploadData().then((value){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>MainPage()));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>const MainPage()));
         });
         setState(() {
           loginFieldController.text = "";
@@ -144,7 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
       Fluttertoast.showToast(msg: "Проверьте подключение к сети!");
       return;
     }
-    Navigator.push(context, MaterialPageRoute(builder: (context)=>RegisterPage()));
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>const RegisterPage()));
   }
 
   Widget getBody(){
@@ -157,18 +156,18 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Center(
             child: Align(
                 alignment: Alignment.center,
-                child: Container(
+                child: SizedBox(
                   width: 350,
                   child: Column(
                     children: [
-                      SizedBox(height: 100,),
+                      const SizedBox(height: 100,),
                       Image.asset("assets/images/logo.png"),
-                      Text("TaskMate",style: TextStyle(fontSize: 25),),
-                      SizedBox(height: 100,),
+                      const Text("TaskMate",style: TextStyle(fontSize: 25),),
+                      SizedBox(height: MediaQuery.of(context).size.height*0.1,),
                       WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
-                      SizedBox(height: 15,),
+                      const SizedBox(height: 15,),
                       PasswordTextField(passwordFieldController, obscurePassword,"Пароль"),
-                      SizedBox(height: 150,),
+                      SizedBox(height: MediaQuery.of(context).size.height*0.15,),
                       Container(
                           width: 350,
                           height: 60,

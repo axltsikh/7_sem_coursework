@@ -1,6 +1,6 @@
 class CustomSubTaskModel{
   int id=0;
-  int? parent=null;
+  int? parent;
   int ProjectID=0;
   String title="";
   int isDone=0;

@@ -1,15 +1,13 @@
 import 'package:course_application/Models/subtask.dart';
-import 'package:course_application/widgets/cupertino_button_template.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import '../CustomModels/CustomProject.dart';
 import '../Utility/button_styles.dart';
 import '../Utility/colors.dart';
 import '../Utility/widget_templates.dart';
+
 class AddParentTaskDialog extends StatefulWidget{
-  AddParentTaskDialog(this.project){}
+  AddParentTaskDialog(this.project, {super.key});
   CustomProject project;
   @override
   State<StatefulWidget> createState() => _AddParentTaskDialog(project);
@@ -35,14 +33,14 @@ class _AddParentTaskDialog extends State<AddParentTaskDialog> {
   SubTask subTask = SubTask.empty();
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: 250,
         height: 220,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: Column(
             children: [
-              Text("Добавление задачи",style: TextStyle(
+              const Text("Добавление задачи",style: TextStyle(
                   fontSize: 20
               ),),
               const SizedBox(height: 15,),

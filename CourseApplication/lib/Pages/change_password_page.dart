@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Utility/widget_templates.dart';
 import 'package:crypto/crypto.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import '../Utility/button_styles.dart';
@@ -12,6 +11,8 @@ import '../Utility/colors.dart';
 import '../Utility/utility.dart';
 
 class ChangePasswordPage extends StatefulWidget{
+  const ChangePasswordPage({super.key});
+
   @override
   State<StatefulWidget> createState() => ChangePasswordPageState();
 }
@@ -69,27 +70,27 @@ class ChangePasswordPageState extends State<ChangePasswordPage>{
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.only(left: 15,right: 15),
+            padding: const EdgeInsets.only(left: 15,right: 15),
             child: Column(
               children: [
-                SizedBox(height: 50,),
+                const SizedBox(height: 50,),
                 PasswordTextField(oldPasswordController,true, "Введите старый пароль"),
-                SizedBox(height: 15,),
+                const SizedBox(height: 15,),
                 PasswordTextField(newPasswordController,true, "Введите новый пароль"),
-                SizedBox(height: 15,),
+                const SizedBox(height: 15,),
                 PasswordTextField(repeatNewPasswordController,true, "Подтвердите новый пароль"),
-                SizedBox(height: 325,),
-                Container(
+                const SizedBox(height: 325,),
+                SizedBox(
                   width: 350,
                   height: 60,
                   child:TextButton(
                     onPressed: changePasswordClick,
+                    style: ButtonStyles.mainButton(),
                     child: Text("Изменить пароль",style: TextStyle(
                         fontFamily: 'SanFranciscoPro',
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                         color: MyColors.backgroundColor),),
-                    style: ButtonStyles.mainButton(),
                   ),
                 )
               ],

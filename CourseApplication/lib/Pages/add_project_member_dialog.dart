@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
 import 'package:course_application/CustomModels/CustomOrganisationMember.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../CustomModels/CustomProjectMember.dart';
 import '../Utility/utility.dart';
@@ -27,13 +26,13 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
       var organisationMembersBuffer = await Utility.databaseHandler.getOrganisationMember(Utility.user.id);
       setState(() {
         organisationMembers.clear();
-        organisationMembersBuffer.forEach((element) {
+        for (var element in organisationMembersBuffer) {
           if(!projectMembers.any((subelement) => subelement.organisationID == element.id)){
             setState(() {
               organisationMembers.add(element);
             });
           }
-        });
+        }
       });
     }else {
       final String url = "http://${Utility.url}/organisation/getMembers";
@@ -46,7 +45,7 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
       if(response.statusCode==200){
         organisationMembers.clear();
         List<dynamic> bodyBuffer = jsonDecode(response.body);
-        bodyBuffer.forEach((bodyBufferElement) {
+        for (var bodyBufferElement in bodyBuffer) {
 
           print(CustomOrganisationMember.fromJson(bodyBufferElement).id);
           print(CustomOrganisationMember.fromJson(bodyBufferElement).username);
@@ -57,7 +56,7 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
               organisationMembers.add(CustomOrganisationMember.fromJson(bodyBufferElement));
             });
           }
-        });
+        }
       }else{
         print("Произошла ошибка");
       }
@@ -67,19 +66,19 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
   List<CustomProjectMember> projectMembers;
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: 250,
         height: 350,
         child: Padding(
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           child: Column(
             children: [
-              Text("Выберите участника",style: TextStyle(
+              const Text("Выберите участника",style: TextStyle(
                   fontSize: 18
               ),),
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(bottomLeft: Radius.circular(33),bottomRight: Radius.circular(33))
                 ),
                 height: 319,
@@ -95,7 +94,7 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
                         title: Text(organisationMembers[index].username),
                       );
                       return ConstrainedBox(
-                        constraints: BoxConstraints(
+                        constraints: const BoxConstraints(
                             minHeight: 50
                         ),
                         child: Card(
@@ -119,17 +118,17 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
           ),
         )
     );
-    return Container(
+    return SizedBox(
         width: 250,
         height: 350,
         child: Padding(
-          padding: EdgeInsets.all(15),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
-              Text("Добавление участника"),
-              Divider(thickness: 1,color: Colors.blue),
+              const Text("Добавление участника"),
+              const Divider(thickness: 1,color: Colors.blue),
               ConstrainedBox(
-                constraints: BoxConstraints(
+                constraints: const BoxConstraints(
                   maxHeight: 285
                 ),
                 child:  ListView.builder(
@@ -137,7 +136,7 @@ class _AddProjectMemberDialog extends State<AddProjectMemberDialog> {
                     itemCount: organisationMembers.length,
                     itemBuilder: (BuildContext context,int index){
                       return ConstrainedBox(
-                        constraints: BoxConstraints(
+                        constraints: const BoxConstraints(
                             minHeight: 50
                         ),
                         child: Card(

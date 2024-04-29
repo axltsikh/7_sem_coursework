@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import '../Utility/utility.dart';
 
 class MainPage extends StatefulWidget{
+  const MainPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _MainPageState();
 }
@@ -16,11 +18,11 @@ class MainPage extends StatefulWidget{
 class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
   Widget getItem(int index){
     if(index == 1){
-      return ProfilePage();
+      return const ProfilePage();
     }else if(index == 0){
-      return ProjectsPage();
+      return const ProjectsPage();
     }else {
-      return CalendarPage();
+      return const CalendarPage();
     }
   }
   @override
@@ -39,7 +41,7 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
         Connectivity().checkConnectivity().then((value){
           if(value == ConnectivityResult.wifi || value == ConnectivityResult.mobile){
             Utility.databaseHandler.uploadData().then((value){
-              Future.delayed(Duration(seconds: 3)).then((value){
+              Future.delayed(const Duration(seconds: 3)).then((value){
                 Utility.databaseHandler.GetAllData();
               });
             });

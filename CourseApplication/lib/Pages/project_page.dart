@@ -6,7 +6,6 @@ import 'package:course_application/CustomModels/CustomProject.dart';
 import 'package:course_application/Pages/single_project_page.dart';
 import 'package:course_application/Pages/sync_dialog.dart';
 import 'package:course_application/Utility/utility.dart';
-import 'package:course_application/Utility/widget_templates.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +14,7 @@ import '../CustomModels/GetUserOrganisation.dart';
 import '../Utility/colors.dart';
 
 class ProjectsPage extends StatefulWidget{
-  ProjectsPage(){}
+  const ProjectsPage({super.key});
   @override
   State<StatefulWidget> createState() => _ProjectsPageState();
 }
@@ -30,11 +29,11 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
       if(event==ConnectivityResult.wifi || event==ConnectivityResult.mobile){
         if(!firstinit){
           var a = showDialog(context: context, builder: (BuildContext context){
-            return AlertDialog(
-                shape: const RoundedRectangleBorder(
+            return const AlertDialog(
+                shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(
                         Radius.circular(30))),
-                contentPadding: const EdgeInsets.only(top: 10.0),
+                contentPadding: EdgeInsets.only(top: 10.0),
                 content: SyncDialog()
             );
           }).then((value){
@@ -50,7 +49,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
     if(connectivityResult == ConnectivityResult.none){
       return;
     }
-    Future.delayed(Duration(seconds: 3)).then((value)async{
+    Future.delayed(const Duration(seconds: 3)).then((value)async{
       print("duration finished");
       await Utility.databaseHandler.GetAllData();
     });
@@ -63,7 +62,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
         userOrganisation = org;
       });
     }else{
-      final String url = "http://${Utility.url}/profile/getUserOrganisation?id=" + Utility.user.id.toString();
+      final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
       final response = await http.get(Uri.parse(url));
       if(response.statusCode == 200){
         print(response.toString());
@@ -100,7 +99,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
   Widget getTextWidget(int index){
     if(index==0 && projects[index].isDone == true && projects.length==1){
       return Container(
-        margin: EdgeInsets.only(left: 75),
+        margin: const EdgeInsets.only(left: 75),
         child: const Text("Выполненные проекты",style: TextStyle(fontSize: 25),),
       );
     }
@@ -108,8 +107,8 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
       return Align(
         alignment: AlignmentDirectional.centerStart,
         child: Container(
-          margin: EdgeInsets.only(left: 15),
-          child: Text("Текущие проекты",style: TextStyle(fontSize: 20),),
+          margin: const EdgeInsets.only(left: 15),
+          child: const Text("Текущие проекты",style: TextStyle(fontSize: 20),),
         ),
       );
     }else if(projects[index].isDone == true && projects[index-1].isDone == false){
@@ -118,34 +117,34 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Divider(color: Colors.blue,),
+            const Divider(color: Colors.blue,),
             Container(
-              margin: EdgeInsets.only(left: 15),
-              child: Text("Завершенные проекты",style: TextStyle(fontSize: 20),),
+              margin: const EdgeInsets.only(left: 15),
+              child: const Text("Завершенные проекты",style: TextStyle(fontSize: 20),),
             ),
           ],
         )
       );
     }
-    return Text("");
+    return const Text("");
   }
   Widget getFloatingButton(){
     if(userOrganisation.id==-1){
-      return Text("");
+      return const Text("");
     }else{
       return Container(
-        margin: EdgeInsets.only(bottom: 60,left: 0),
+        margin: const EdgeInsets.only(bottom: 60,left: 0),
         child: FloatingActionButton(
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(50)),
           ),
           onPressed: (){
             Navigator.of(context).push(
-                CupertinoPageRoute(builder: (context) => CreateProjectPage())
+                CupertinoPageRoute(builder: (context) => const CreateProjectPage())
             ).then((value){GetProjects();});
           },
           backgroundColor: MyColors.firstAccent,
-          child: Icon(Icons.add,color: Colors.white,),
+          child: const Icon(Icons.add,color: Colors.white,),
         ),
       );
     }
@@ -169,9 +168,9 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
         projects.clear();
         List<dynamic> bodyBuffer = jsonDecode(response.body);
         List<CustomProject> buffer = [];
-        bodyBuffer.forEach((element) {
+        for (var element in bodyBuffer) {
           buffer.add(CustomProject.fromJson(element));
-        });
+        }
         setState(() {
           projects = buffer.where((element) => element.isDone ==false).toList();
           projects += buffer.where((element) => element.isDone == true).toList();
@@ -182,8 +181,9 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
   }
 
   Widget getAllProjects(){
-    return SizedBox(
+    return Container(
       height: 250,
+      padding: EdgeInsets.only(bottom: 15),
       child: Card(
         color: MyColors.secondBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -205,7 +205,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                         color: MyColors.secondBackground,
                       ),
                     ),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    trailing: const Icon(Icons.arrow_forward_ios),
                     title: Text(project.Title),
                     subtitle: Text(project.Description),),
                 ],
@@ -239,7 +239,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                         color: MyColors.secondBackground,
                       ),
                     ),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    trailing: const Icon(Icons.arrow_forward_ios),
                     title: Text(project.Title),
                     subtitle: Text(project.Description),),
                 ],
@@ -274,7 +274,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                       ),
                     ),
                     title: Text(project.Title),
-                    trailing: Icon(Icons.arrow_forward_ios),
+                    trailing: const Icon(Icons.arrow_forward_ios),
                     subtitle: Text(project.Description),),
                 ],
               );
@@ -291,12 +291,12 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: getFloatingButton(),
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(135),
+        preferredSize: const Size.fromHeight(135),
         child: Container(
-          margin: EdgeInsets.only(top: 50),
+          margin: const EdgeInsets.only(top: 50),
           child: Column(
             children: [
-              Container(
+              SizedBox(
                 width: 410,
                 height: 65,
                 child: Card(
@@ -305,7 +305,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                         borderRadius: BorderRadius.circular(35)
                     ),
                     color: Colors.white,
-                    child: Column(
+                    child: const Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text("Проекты",textAlign: TextAlign.center,style: TextStyle(
@@ -334,8 +334,10 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
         child: Padding(
           padding: const EdgeInsets.only(left:15,right: 15,top: 5,bottom: 25),
           child:Column(
-            children:[ SizedBox(
-              height: 600,
+            children:[ Container(
+              height: MediaQuery.of(context).size.height*0.7,
+              margin: EdgeInsets.only(bottom: 25),
+              // padding: EdgeInsets.only(bottom: 25),
               child: TabBarView(
                 controller: _tabController,
                 children: [

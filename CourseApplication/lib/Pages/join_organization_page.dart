@@ -9,10 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import '../Models/organization.dart';
+import '../Utility/button_styles.dart';
 import '../Utility/colors.dart';
 import '../Utility/utility.dart';
 
 class JoinOrganizationPage extends StatefulWidget{
+  const JoinOrganizationPage({super.key});
+
   @override
   State<StatefulWidget> createState() => _JoinOrganizationPage();
 }
@@ -41,10 +44,10 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
         organizations.clear();
         List<dynamic> bodyBuffer = jsonDecode(response.body);
         setState(() {
-          bodyBuffer.forEach((element) {
+          for (var element in bodyBuffer) {
             organizations.add(Organization.fromJson(element));
             searchBuffer.add(Organization.fromJson(element));
-          });
+          }
         });
       }
     }
@@ -81,26 +84,26 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
       backgroundColor: MyColors.backgroundColor,
       floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: Container(
-        margin: EdgeInsets.only(bottom: 60,left: 0),
+        margin: const EdgeInsets.only(bottom: 60,left: 0),
         child: FloatingActionButton(
-          shape: RoundedRectangleBorder(
+          shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(50)),
           ),
           onPressed: (){
             Navigator.of(context).push(
-                CupertinoPageRoute(builder: (context) => CreateOrganizationPage())
+                CupertinoPageRoute(builder: (context) => const CreateOrganizationPage())
             );
           },
           backgroundColor: MyColors.firstAccent,
-          child: Icon(Icons.add,color: Colors.white,),
+          child: const Icon(Icons.add,color: Colors.white,),
         ),
       ),
       appBar: WidgetTemplates.getAppBarWithReturnButton("Вступить в организацию", context),
       body: SingleChildScrollView(
         child: Center(
             child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Container(
+              padding: const EdgeInsets.all(15),
+              child: SizedBox(
                 height: 700,
                 child: Column(
                   children: [
@@ -119,9 +122,10 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
                             fontFamily: 'SanFranciscoPro',
                             fontWeight: FontWeight.w500,
                             fontSize: 16)),
+                    SizedBox(height: 15,),
                     Padding(
-                        padding: EdgeInsets.only(left: 5,right: 5),
-                        child: Container(
+                        padding: const EdgeInsets.only(left: 5,right: 5),
+                        child: SizedBox(
                           height: 600,
                           child: Card(
                             color: Colors.white,
@@ -135,40 +139,39 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
                                           context: context,
                                           builder: (BuildContext context){
                                             return AlertDialog(
+                                              backgroundColor: MyColors.backgroundColor,
                                                 shape: const RoundedRectangleBorder(
                                                     borderRadius: BorderRadius.all(Radius.circular(30))),
                                                 contentPadding: const EdgeInsets.all(15),
                                                 content: SizedBox(
                                                   width: 150,
-                                                  height: 150,
+                                                  height: 180,
                                                   child: Column(
                                                     children: [
                                                       const Text("Введите пароль",style: TextStyle(fontSize: 20),),
-                                                      const Divider(
-                                                        thickness: 1,
-                                                        color: Colors.blue,
-                                                      ),
                                                       Container(height: 15,),
-                                                      CupertinoTextField(
-                                                        placeholder: "Введите пароль",
-                                                        controller: organizationPasswordController,
-                                                        clearButtonMode: OverlayVisibilityMode.always,
-                                                        obscureText: true,
-                                                      ),
+                                                      WidgetTemplates.getTextField(organizationPasswordController, "Введите пароль"),
                                                       Container(height: 15,),
-                                                      CupertinoButtonTemplate("Вступить", () async{
-                                                        if(organizations[index].password==organizationPasswordController.text){
-                                                          var a = await joinOrganization(organizations[index].id);
-                                                          if(a==1){
-                                                            Navigator.pop(context);
+                                                      TextButton(
+                                                        onPressed: () async{
+                                                          if(organizations[index].password==organizationPasswordController.text){
+                                                            var a = await joinOrganization(organizations[index].id);
+                                                            if(a==1){
+                                                              Navigator.of(context).pop(1);
+                                                              // Navigator.of(context).pop(1);
+                                                            }
+                                                          }else{
+                                                            setState(() {
+                                                              organizationPasswordController.text="";
+                                                            });
+                                                            Fluttertoast.showToast(msg: "Неверный пароль");
                                                           }
-                                                        }else{
-                                                          setState(() {
-                                                            organizationPasswordController.text="";
-                                                          });
-                                                          Fluttertoast.showToast(msg: "Неверный пароль");
-                                                        }
-                                                      })
+                                                        },
+                                                        child: Text("Вступить",style: TextStyle(
+                                                          color: Colors.white
+                                                        ),),
+                                                        style: ButtonStyles.mainButton(),
+                                                      )
                                                     ],
                                                   ),
                                                 )
@@ -177,8 +180,8 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
                                       );
                                     },
                                     leading: Icon(
-                                      Icons.group_work,
-                                      color: MyColors.textColor,
+                                      Icons.people,
+                                      color: MyColors.firstAccent,
                                     ),
                                     title: Text(organizations[index].name),
                                   );

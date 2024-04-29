@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:web_application/pages/update_subtask_dialog.dart';
 import '../Models/bar_chart_data.dart';
 import '../Models/chart_data.dart';
 import '../Models/custom_project.dart';
@@ -11,9 +12,12 @@ import '../Models/custom_project_member.dart';
 import '../Models/subtask.dart';
 import '../Models/subtask_model.dart';
 import '../Models/user.dart';
+import '../button_styles.dart';
 import '../my_colors.dart';
 import '../utility.dart';
 import "package:collection/collection.dart";
+
+import '../widget_templates.dart';
 
 class SingleProjectPage extends StatefulWidget{
   SingleProjectPage(this.project, {super.key});
@@ -35,6 +39,8 @@ class _SingleProjectState extends State<SingleProjectPage>{
   List<SubTaskModel> childSubTasksSnapshot = [];
   User projectCreator = User(0,"","");
   String ButtonText = "";
+
+
   double getDaysPercentsForProgressBar( ){
 
     try{
@@ -71,6 +77,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
       return 100;
     }
   }
+
   Future<void> InitializeProject() async{
       projectMembers.clear();
       parentSubTasks.clear();
@@ -106,8 +113,6 @@ class _SingleProjectState extends State<SingleProjectPage>{
       });
     }
     projectMembers = projectMembers.where((element) => element.deleted == 0).toList();
-    // projectMembers = projectMembers.where((element) => element.username != Utility.user.Username).toList();
-    print(projectMembers.length);
     String parenturl = "http://${Utility.url}/project/getProjectParentTasks?projectID=${project.id}";
     final secondResponse = await http.get(Uri.parse(parenturl));
     List<dynamic> parentTasksBuffer = jsonDecode(secondResponse.body);
@@ -136,9 +141,9 @@ class _SingleProjectState extends State<SingleProjectPage>{
       result.add(ChartData(a.key.toString(), a.value.length,number,number+5));
       number+=1;
     }
+    print("result length: " + result.length.toString());
     return result;
   }
-
   List<ColumnChartData> groupMembersByTasks(){
     var buffer = groupBy(childSubTasks, (p0) => p0.username);
     List<ColumnChartData> result = [];
@@ -156,7 +161,6 @@ class _SingleProjectState extends State<SingleProjectPage>{
       InitializeProject();
     }
   }
-
   Future<void> deleteChildSubTask(int index)async{
     String url = "http://${Utility.url}/web/deleteChildSubTask?id=$index";
     final response = await http.delete(Uri.parse(url));
@@ -164,13 +168,27 @@ class _SingleProjectState extends State<SingleProjectPage>{
       InitializeProject();
     }
   }
-
   Future<void> deleteParentSubTask(int index)async{
     String url = "http://${Utility.url}/web/deleteParentSubTask?id=$index";
     final response = await http.delete(Uri.parse(url));
     if(response.statusCode==200){
       InitializeProject();
     }else{
+    }
+  }
+
+  Future<void> updateSubTask(SubTaskModel subTask)async{
+    var a = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            backgroundColor: MyColors.secondBackground,
+            content: AddSubTaskDialog(project,projectMembers,subTask),
+          );
+        }
+    );
+    if(a){
+      InitializeProject();
     }
   }
 
@@ -211,7 +229,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const SizedBox(width: 15,),
+                        const SizedBox(width: 5,),
                         Column(
                           crossAxisAlignment:CrossAxisAlignment.start,
                           children: [
@@ -371,7 +389,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               fontWeight: FontWeight.w500
                           )),
                           SizedBox(height: 5,),
-                          Text("Завершено ${getSubtaskPercentsForProgressBars().floor()}% задач",style: TextStyle(
+                          Text("Выполнено ${getSubtaskPercentsForProgressBars().floor()}% задач",style: TextStyle(
                               fontSize: 17,
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
@@ -426,12 +444,14 @@ class _SingleProjectState extends State<SingleProjectPage>{
                               backgroundColor: Colors.grey[300],
                             ),
                           ),
-                          Text("Начало проекта: " + Utility.getDate(project.StartDate.substring(0,10)),style: TextStyle(
+                          SizedBox(height: 15,),
+                          Text("Начало: " + Utility.getDate(project.StartDate.substring(0,10)),style: TextStyle(
                               fontSize: 15,
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
                           )),
-                          Text("Завершение проекта: " + Utility.getDate(project.EndDate.substring(0,10)),style: TextStyle(
+                          SizedBox(height: 5,),
+                          Text("Завершение: " + Utility.getDate(project.EndDate.substring(0,10)),style: TextStyle(
                               fontSize: 15,
                               color: MyColors.textColor,
                               fontWeight: FontWeight.w500
@@ -528,19 +548,19 @@ class _SingleProjectState extends State<SingleProjectPage>{
                 width: 750,
                 height: 420,
                 decoration: const BoxDecoration(
-                    color: Colors.blueAccent,
+                    color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(5))
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height:5,),
-                    const Row(
+                     Row(
                       children: [
                         SizedBox(width: 15,),
-                        Text("Участник/задача",textAlign: TextAlign.start,style: TextStyle(
+                        Text("Тенденция выполнения задач",textAlign: TextAlign.start,style: TextStyle(
                             fontSize: 25,
-                            color: Colors.white,
+                            color: MyColors.textColor,
                             fontWeight: FontWeight.w500
 
                         ),),
@@ -554,14 +574,14 @@ class _SingleProjectState extends State<SingleProjectPage>{
                           child: Column(
                             crossAxisAlignment:CrossAxisAlignment.start,
                             children: [
-                              Text("Количество участников: ${projectMembers.length}",textAlign: TextAlign.start,style: const TextStyle(
+                              Text("Количество участников: ${projectMembers.length}",textAlign: TextAlign.start,style:  TextStyle(
                                   fontSize: 20,
-                                  color: Colors.white,
+                                  color: MyColors.textColor,
                                   fontWeight: FontWeight.w200
                               ),),
-                              Text("Количество задач: ${childSubTasks.length}",textAlign: TextAlign.start,style: const TextStyle(
+                              Text("Количество задач: ${childSubTasks.length}",textAlign: TextAlign.start,style:  TextStyle(
                                   fontSize: 20,
-                                  color: Colors.white,
+                                  color:MyColors.textColor,
                                   fontWeight: FontWeight.w200
                               ),),
                               SizedBox(
@@ -571,14 +591,14 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                       plotAreaBorderWidth: 0,
                                       tooltipBehavior: TooltipBehavior(enable: true, header: '', canShowMarker: false),
                                       primaryXAxis: DateTimeAxis(
-                                        borderColor: Colors.white,
-                                        labelStyle: TextStyle(color: Colors.white),
+                                        borderColor: MyColors.textColor,
+                                        labelStyle: TextStyle(color: MyColors.textColor),
                                         edgeLabelPlacement: EdgeLabelPlacement.shift,
                                         intervalType: DateTimeIntervalType.days,
                                       ),
                                       primaryYAxis: NumericAxis(
-                                          borderColor: Colors.white,
-                                          labelStyle: TextStyle(color: Colors.white),
+                                          borderColor:MyColors.textColor,
+                                          labelStyle: TextStyle(color: MyColors.textColor),
                                           labelFormat: '{value}',
                                           minimum: 0,
                                           interval: 1,
@@ -587,6 +607,8 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                       series: <CartesianSeries>[
                                         // Renders line chart
                                         LineSeries<ChartData, DateTime>(
+                                          enableTooltip: true,
+                                          name: "Выполнено задач: ",
                                           dataSource:groupSubTasks(),
                                           xValueMapper: (ChartData data, _) => DateTime.parse(data.date.substring(0,10)),
                                           yValueMapper: (ChartData data, _) => data.amountOfTasks,
@@ -638,6 +660,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                       color: MyColors.secondBackground
                                   ),),
                                   trailing: PopupMenuButton<int>(
+                                    tooltip: "Больше..",
                                     onSelected: (value){
                                       if(value == 0){
                                         deleteParentSubTask(parentSubTasks[mainTaskIndex].id);
@@ -666,16 +689,23 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                           title: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].title),
                                           subtitle: Text(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].username),
                                           trailing: PopupMenuButton<int>(
+                                            tooltip: "Больше..",
                                             onSelected: (value){
                                               if(value == 0){
                                                 deleteChildSubTask(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex].SubTaskID);
+                                              }else if(value == 1){
+                                                updateSubTask(childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).toList()[subTaskIndex]);
                                               }
                                             },
                                             itemBuilder: (BuildContext context){
                                               return <PopupMenuEntry<int>>[
                                                 const PopupMenuItem<int>(
                                                   value: 0,
-                                                  child: Text("Удалить задачу"),
+                                                  child: Text("Удалить подзадачу"),
+                                                ),
+                                                const PopupMenuItem<int>(
+                                                  value: 1,
+                                                  child: Text("Редактировать"),
                                                 ),
                                               ];
                                             },

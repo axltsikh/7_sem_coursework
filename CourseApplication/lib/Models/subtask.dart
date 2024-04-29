@@ -1,11 +1,11 @@
 class SubTask{
   int id=0;
-  int? parent=null;
+  int? parent;
   int ProjectID=0;
   String title="";
   bool isDone=false;
   bool isTotallyDone=false;
-  String completionDate = "";
+  String? completionDate = "";
   String deadLine = "";
   SubTask(this.id,this.parent,this.ProjectID,this.title,this.isDone,this.isTotallyDone,this.completionDate,this.deadLine);
   SubTask.empty();
