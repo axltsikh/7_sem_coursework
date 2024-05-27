@@ -8,6 +8,7 @@ import 'package:oktoast/oktoast.dart';
 import 'package:web_application/Models/subtask.dart';
 import 'dart:html' as html;
 import '../Models/custom_project.dart';
+import '../button_styles.dart';
 import '../my_colors.dart';
 import 'single_project_page.dart';
 import '../utility.dart';
@@ -159,7 +160,7 @@ class _MainPageState extends State<MainPage> {
     if(response.statusCode==200){
       await GetProjects();
       await GetChildSubTasks();
-      Navigator.pop(context);
+      showToast("Дата завершения успешно изменена!");
     }else{
 
       showToast("Произошла ошибка");
@@ -230,19 +231,22 @@ class _MainPageState extends State<MainPage> {
         builder: (BuildContext context){
           return AlertDialog(
               shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10))),
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
               contentPadding: const EdgeInsets.only(top: 10.0),
+              backgroundColor: Colors.white,
               content: Padding(
                 padding: const EdgeInsets.all(15),
                 child: SizedBox(
                     width: 300,
-                    height: 412,
+                    height: 415,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text("Выберите новую дату"),
                         const Divider(color: Colors.blue,),
                         DateRangePickerWidget(
+                          height: 330,
                           doubleMonth: false,
                           initialDisplayedDate:DateTime.parse(projects[index].EndDate),
                           onDateRangeChanged: (dateRange){
@@ -251,12 +255,21 @@ class _MainPageState extends State<MainPage> {
                             });
                           },
                         ),
-                        CupertinoButton.filled(
-                          onPressed: (){
-                            updateProjectDate(projects[index]);
-                          },
-                          borderRadius: BorderRadius.circular(15),
-                          child: const Text("Сохранить изменения"),
+                        SizedBox(
+                          height: 45,
+                          width: 280,
+                          child: TextButton(
+                            onPressed: (){
+                              updateProjectDate(projects[index]);
+                            },
+                            style: ButtonStyles.mainButton(),
+                            child: Text("Изменить дату завершения",
+                                style: TextStyle(
+                                    fontFamily: 'SanFranciscoPro',
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
+                                    color: MyColors.backgroundColor)),
+                          ),
                         )
                       ],
                     )
@@ -336,7 +349,8 @@ class _MainPageState extends State<MainPage> {
                 },
                 tileColor: Colors.white,
                 title: Text(project.Title),
-                subtitle: Text(project.Description + "\n" + "Статус проекта: " + (project.isDone ? "Завершен" : "Текущий")),
+                  leading: Icon(Icons.circle,color: project.isDone ? Colors.red : Colors.greenAccent,size: 20,),
+                subtitle:Text(project.Description + "\n" + "Статус проекта: " + (project.isDone ? "Завершен" : "Текущий")),
                 trailing: PopupMenuButton<int>(
                   tooltip: "Дополнительные действия",
                   onSelected: (value){

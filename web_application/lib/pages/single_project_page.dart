@@ -142,6 +142,7 @@ class _SingleProjectState extends State<SingleProjectPage>{
       number+=1;
     }
     print("result length: " + result.length.toString());
+    result.sort((a,b)=>a.date.compareTo(b.date));
     return result;
   }
   List<ColumnChartData> groupMembersByTasks(){
@@ -507,7 +508,6 @@ class _SingleProjectState extends State<SingleProjectPage>{
                                   child:ListView.builder(
                                     itemCount: projectMembers.length,
                                     itemBuilder: (BuildContext context,int index){
-                                      print(projectMembers.length);
                                       var member = projectMembers[index];
                                       return ListTile(
                                         leading: Icon(Icons.person,color: MyColors.firstAccent,),
@@ -637,14 +637,18 @@ class _SingleProjectState extends State<SingleProjectPage>{
                 height: 420,
                 width: 351,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height:5,),
-                    Text("Список задач",textAlign: TextAlign.start,style: TextStyle(
-                        fontSize: 25,
-                        color: MyColors.textColor,
-                        fontWeight: FontWeight.w500
+                    Container(
+                      margin: EdgeInsets.only(left: 5),
+                      child: Text("Список задач",textAlign: TextAlign.start,style: TextStyle(
+                          fontSize: 25,
+                          color: MyColors.textColor,
+                          fontWeight: FontWeight.w500
 
-                    ),),
+                      ),),
+                    ),
                     Container(
                       height: 379,
                       width: 350,
@@ -654,7 +658,13 @@ class _SingleProjectState extends State<SingleProjectPage>{
                           return Column(
                             children: [
                               Container(
-                                color:MyColors.firstAccent,
+                                decoration: BoxDecoration(
+                                  color:MyColors.firstAccent,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft:Radius.circular(15),
+                                    topRight: Radius.circular(15)
+                                  )
+                                ),
                                 child: ListTile(
                                   title: Text(parentSubTasks[mainTaskIndex].title,style: TextStyle(
                                       color: MyColors.secondBackground

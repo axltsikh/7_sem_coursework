@@ -26,6 +26,7 @@ dependencies:
   syncfusion_flutter_charts: ^21.2.10
   percent_indicator: ^4.2.3
   syncfusion_flutter_calendar: ^21.2.10
+  shared_preferences: ^2.2.3
 
 
 dev_dependencies:

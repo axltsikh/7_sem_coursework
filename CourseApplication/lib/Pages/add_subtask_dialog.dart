@@ -36,11 +36,11 @@ class _AddSubTaskDialog extends State<AddSubTaskDialog> {
     if(controller.text.length < 3){
       Fluttertoast.showToast(msg: "Минимальная длина названия подзадачи - 3 символа!");
       return;
-    }else if(subTaskExecutors.username==""){
+    }else if(subTaskExecutors.username=="Выбрать исполнителя"){
       Fluttertoast.showToast(msg: "Выберите исполнителя!");
       return;
     }
-
+    print(subTaskExecutors.username);
     final connectivityResult = await (Connectivity().checkConnectivity());
 
     if(connectivityResult == ConnectivityResult.none){

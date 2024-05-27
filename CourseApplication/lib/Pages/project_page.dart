@@ -18,7 +18,7 @@ class ProjectsPage extends StatefulWidget{
   @override
   State<StatefulWidget> createState() => _ProjectsPageState();
 }
-class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMixin{
+class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMixin, WidgetsBindingObserver{
   StreamSubscription<ConnectivityResult>? a;
   late final TabController _tabController= TabController(length: 3, vsync: this);
   bool firstinit=true;
@@ -59,7 +59,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
     if(connectivityResult == ConnectivityResult.none){
       var org = await Utility.databaseHandler.getUserOrganisation();
       setState(() {
-        userOrganisation = org;
+        Utility.getUserOrganisation = org;
       });
     }else{
       final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
@@ -68,13 +68,12 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
         print(response.toString());
         Map<String,dynamic> bodyBuffer = jsonDecode(response.body);
         setState(() {
-          userOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
-          Utility.getUserOrganisation = userOrganisation;
+          Utility.getUserOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
         });
       }
       else{
         setState(() {
-          userOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
+          Utility.getUserOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
         });
       }
     }
@@ -83,19 +82,15 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-  }
-  @override
-  void didUpdateWidget(covariant ProjectsPage oldWidget) {
-    print("update");
-    GetProjects();
-    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addObserver(this);
   }
   @override
   void dispose() {
-    print("cancel");
+    WidgetsBinding.instance.removeObserver(this);
     a?.cancel();
     super.dispose();
   }
+
   Widget getTextWidget(int index){
     if(index==0 && projects[index].isDone == true && projects.length==1){
       return Container(
@@ -129,7 +124,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
     return const Text("");
   }
   Widget getFloatingButton(){
-    if(userOrganisation.id==-1){
+    if(Utility.getUserOrganisation.id==-1){
       return const Text("");
     }else{
       return Container(
@@ -150,7 +145,6 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
     }
   }
   List<CustomProject> projects = [];
-  GetUserOrganisation userOrganisation = GetUserOrganisation(-1, "", "", 0, 0);
   Future<void> GetProjects() async{
     getOrganisation();
     final connectivityResult = await (Connectivity().checkConnectivity());
@@ -181,14 +175,14 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
   }
 
   Widget getAllProjects(){
-    return Container(
-      height: 250,
+    return RefreshIndicator(color: MyColors.firstAccent,child: Container(
+      height: MediaQuery.of(context).size.height*0.7,
       padding: EdgeInsets.only(bottom: 15),
       child: Card(
         color: MyColors.secondBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: ListView.builder(
-          shrinkWrap: true,
+            shrinkWrap: true,
             itemCount: projects.length,
             itemBuilder:(BuildContext context, int index){
               CustomProject project = projects[index];
@@ -201,7 +195,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
                     leading: CircleAvatar(
                       backgroundColor: MyColors.firstAccent,
                       child: Icon(
-                        Icons.person,
+                        Icons.group,
                         color: MyColors.secondBackground,
                       ),
                     ),
@@ -213,11 +207,11 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
             }
         ),
       ),
-    );
+    ), onRefresh: GetProjects);
   }
   Widget getCurrentProjects(){
-    return SizedBox(
-      height: 250,
+    return RefreshIndicator(child: SizedBox(
+      height: MediaQuery.of(context).size.height*0.7,
       child: Card(
         color: MyColors.secondBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -247,11 +241,11 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
             }
         ),
       ),
-    );
+    ),color: MyColors.firstAccent, onRefresh: GetProjects);
   }
   Widget getFinishedProjects(){
-    return SizedBox(
-      height: 250,
+    return RefreshIndicator(color: MyColors.firstAccent,child: SizedBox(
+      height: MediaQuery.of(context).size.height*0.7,
       child: Card(
         color: MyColors.secondBackground,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -281,7 +275,7 @@ class _ProjectsPageState extends State<ProjectsPage> with TickerProviderStateMix
             }
         ),
       ),
-    );
+    ), onRefresh: GetProjects);
   }
 
   @override

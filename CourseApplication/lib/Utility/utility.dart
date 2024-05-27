@@ -1,10 +1,14 @@
+import 'dart:convert';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/CustomModels/GetUserOrganisation.dart';
 import 'package:course_application/Utility/database_handler.dart';
+import 'package:http/http.dart' as http;
 
 import '../Models/user.dart';
 
 class Utility{
-  static String url = "192.168.150.55:1234";
+  static String url = "10.0.2.2:1234";
   //10.0.2.2:1234 emulator
   //192.168.48.1:1234 phone
   static int asd = 1;
@@ -12,7 +16,26 @@ class Utility{
   static User user = User(0,"","");
   static DatabaseHandler databaseHandler = DatabaseHandler();
   static bool connectionStatus = false;
-
+  static Future<void> getOrganisation() async{
+    final connectivityResult = await (Connectivity().checkConnectivity());
+    if(connectivityResult == ConnectivityResult.none){
+      var org = await Utility.databaseHandler.getUserOrganisation();
+      Utility.getUserOrganisation = org;
+    }else{
+      final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
+      final response = await http.get(Uri.parse(url));
+      if(response.statusCode == 200){
+        print(response.toString());
+        Map<String,dynamic> bodyBuffer = jsonDecode(response.body);
+        Utility.getUserOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
+        print("вы состоите в организации");
+      }
+      else{
+        print("не состоите");
+        Utility.getUserOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
+      }
+    }
+  }
   static String getDate(String date){
     String month;
     String day = date.substring(8,10);

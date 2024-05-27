@@ -600,10 +600,6 @@ app.post("/web/updateSubTask",function(req,response){
     request = new sql.Request();
     console.log(JSON.stringify(req.body));
     let buffer = JSON.parse(JSON.stringify(req.body));
-    console.log("updateSubTask: " + buffer.id);
-    console.log("updateSubTask: " + buffer.title);
-    console.log("updateSubTask: " + buffer.deadLine);
-    console.log("updateSubTask: " + buffer.executorID);
     request.input('id',buffer.id);
     request.input('title',buffer.title);
     request.input('deadLine',buffer.deadLine);

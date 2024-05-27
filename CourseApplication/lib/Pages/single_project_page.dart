@@ -365,7 +365,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                   ),),
                   onExpansionChanged: (bool expanded) {
                     setState(() {
-                      currentTileExpanded = expanded;
+                      currentTileExpanded = !currentTileExpanded;
                     });
                   },
                   trailing: project.isDone ? Icon(
@@ -410,7 +410,7 @@ class _SingleProjectState extends State<SingleProjectPage> with TickerProviderSt
                       width: double.infinity,
                       color: Colors.white,
                       child: SizedBox(
-                        height: 400,
+                        height: 200,
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: childSubTasks.where((element) => element.parent==parentSubTasks[mainTaskIndex].id).length,

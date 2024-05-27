@@ -57,26 +57,24 @@ class WidgetTemplates{
                 borderRadius: BorderRadius.circular(35)
             ),
             color: Colors.white,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
+              alignment: AlignmentDirectional.center,
               children: [
-                Row(
-                  children: [
-                    GestureDetector(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                            margin: const EdgeInsets.only(left: 16),
-                            child: const Icon(Icons.arrow_back_ios))),
-                    const SizedBox(width: 70,),
-                    Text(text,textAlign: TextAlign.center,style: const TextStyle(
-                        fontSize: 20
-                    ),),
-                  ],
-                )
+                Positioned(
+                  left: 5,
+                  top:17,
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                        margin: const EdgeInsets.only(left: 16),
+                        child: const Icon(Icons.arrow_back_ios))),),
+                Text(text,textAlign: TextAlign.center,style: const TextStyle(
+                    fontSize: 20
+                ),),
               ],
-            )
+            ),
         ),
       ),
     );

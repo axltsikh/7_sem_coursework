@@ -33,9 +33,8 @@ class _CreateProjectPage extends State<CreateProjectPage> {
       Fluttertoast.showToast(msg: "Выберите даты проекта!");
     }
     if(descriptionController.text==""){
-      descriptionController.text = "Описание отстутсвует";
+      descriptionController.text = "";
     }
-    print("createProject");
     final connectivityResult = await (Connectivity().checkConnectivity());
     if(connectivityResult == ConnectivityResult.none){
       await Utility.databaseHandler.createProject(titleController.text, descriptionController.text, startDate, endDate,projectMembers);
@@ -80,7 +79,7 @@ class _CreateProjectPage extends State<CreateProjectPage> {
     print("responseStatesCode: ${response.statusCode}");
     if(response.statusCode==200){
       Fluttertoast.showToast(msg: "Проект успешно создан!");
-      Navigator.pop(context,1);
+      Navigator.of(context).pop(1);
     }else{
       Fluttertoast.showToast(msg: "Произошла ошибка!");
     }

@@ -52,7 +52,6 @@ class _MainPageState extends State<MainPage> with WidgetsBindingObserver{
   @override
   Widget build(BuildContext context) {
     return CupertinoTabScaffold(
-
         tabBar: CupertinoTabBar(
           activeColor: MyColors.firstAccent,
           items: const <BottomNavigationBarItem>[

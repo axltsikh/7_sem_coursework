@@ -54,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
     if(connectivityResult == ConnectivityResult.none){
       var org = await Utility.databaseHandler.getUserOrganisation();
       setState(() {
-        userOrganisation = org;
+        Utility.getUserOrganisation = org;
       });
     }else{
       final String url = "http://${Utility.url}/profile/getUserOrganisation?id=${Utility.user.id}";
@@ -62,19 +62,19 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
       if(response.statusCode == 200){
         Map<String,dynamic> bodyBuffer = jsonDecode(response.body);
         setState(() {
-          userOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
+          Utility.getUserOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
           Utility.getUserOrganisation = GetUserOrganisation.fromJson(bodyBuffer);
         });
       }
       else{
         setState(() {
-          userOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
+          Utility.getUserOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
         });
       }
     }
   }
   Future<void> leaveOrganisation() async{
-    if(userOrganisation.id==-1){
+    if(Utility.getUserOrganisation.id==-1){
       print("Нет организации");
       return;
     }
@@ -87,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
       int result = await Utility.databaseHandler.leaveOrganisation();
       if(result == 1){
         setState(() {
-          userOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
+          Utility.getUserOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
         });
       }else{
         Fluttertoast.showToast(msg: "Произошла ошибка");
@@ -96,8 +96,9 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
       final String url = "http://${Utility.url}/organisation/leave?id=${Utility.user.id}";
       final response = await http.delete(Uri.parse(url));
       if(response.statusCode==200){
-        setState(() {
-          userOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
+        setState((){
+          Utility.getOrganisation();
+          Utility.getUserOrganisation = GetUserOrganisation(-1, "Вы не состоите в организации", "", -1, -1);
         });
       }else{
         Fluttertoast.showToast(msg: "Произошла ошибка");
@@ -125,7 +126,6 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
 
 
   //region variables
-  GetUserOrganisation userOrganisation = GetUserOrganisation(-1, "", "", 0, 0);
   //endregion
 
   @override
@@ -153,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                 fontWeight: FontWeight.w600
               ),),
               const SizedBox(height: 5,),
-              Text(userOrganisation.name,textAlign: TextAlign.center,style: const TextStyle(
+              Text(Utility.getUserOrganisation.name,textAlign: TextAlign.center,style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                 color: Colors.grey
@@ -164,15 +164,14 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
                 decoration: const BoxDecoration(border: null),
                 child: ListTile(
                   onTap: (){
-                    if(userOrganisation.id!=-1){
-                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => OrganisationManagementPage(userOrganisation)));
+                    if(Utility.getUserOrganisation.id!=-1){
+                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => OrganisationManagementPage(Utility.getUserOrganisation)));
                     }else{
-                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => const JoinOrganizationPage())).then((value){
-                        if(value == 1){
+                      Navigator.push(context, CupertinoPageRoute(builder: (builder) => const JoinOrganizationPage())).then((value)async{
+                        setState(()async{
                           getOrganisation();
-                        }else{
-                          print("value not 1");
-                        }
+                          await Utility.getOrganisation();
+                        });
                       });
                     }
                   },
@@ -282,6 +281,26 @@ class _ProfilePageState extends State<ProfilePage> with WidgetsBindingObserver{
               //   color: MyColors.backgroundColor,
               //   height: 1,
               // ),
+              SizedBox(
+                width: 324,
+                child: ListTile(
+                  onTap: leaveOrganisation,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                      )),
+                  tileColor: MyColors.secondBackground,
+                  leading: Icon(
+                    Icons.exit_to_app_outlined,
+                    color: MyColors.fourthAccent,
+                  ),
+                  title: Text("Выйти из организации",
+                      style: TextStyle(
+                          fontFamily: 'SanFranciscoPro',
+                          fontSize: 15,
+                          color: MyColors.fourthAccent)),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                ),
+              ),
               SizedBox(
                 width: 324,
                 child: ListTile(

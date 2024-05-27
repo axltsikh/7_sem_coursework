@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:course_application/Pages/create_organization_page.dart';
 import 'package:course_application/Utility/widget_templates.dart';
-import 'package:course_application/widgets/cupertino_button_template.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -92,7 +90,11 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
           onPressed: (){
             Navigator.of(context).push(
                 CupertinoPageRoute(builder: (context) => const CreateOrganizationPage())
-            );
+            ).then((value)async{
+              setState(()async{
+                await Utility.getOrganisation();
+              });
+            });
           },
           backgroundColor: MyColors.firstAccent,
           child: const Icon(Icons.add,color: Colors.white,),
@@ -157,6 +159,9 @@ class _JoinOrganizationPage extends State<JoinOrganizationPage> {
                                                           if(organizations[index].password==organizationPasswordController.text){
                                                             var a = await joinOrganization(organizations[index].id);
                                                             if(a==1){
+                                                              setState(()async{
+                                                                await Utility.getOrganisation();
+                                                              });
                                                               Navigator.of(context).pop(1);
                                                               // Navigator.of(context).pop(1);
                                                             }

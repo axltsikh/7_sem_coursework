@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:oktoast/oktoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_application/widget_templates.dart';
 import 'package:web_application/widgets/password_text_field.dart';
 import 'button_styles.dart';
@@ -13,11 +14,12 @@ import 'Pages/home_page.dart';
 import 'utility.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+
+   // MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return OKToast(child: MaterialApp(
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
         ),
         primarySwatch: Colors.blue,
       ),
+
       home: const MyHomePage(title: 'Trello'),
     ));
   }
@@ -44,11 +47,24 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  _MyHomePageState(){
+    checkPrefs();
+  }
 
+
+  Future<void> checkPrefs()async{
+    final sharedPrefs = await SharedPreferences.getInstance();
+    if(sharedPrefs.containsKey("id")){
+      Utility.user.id=int.parse((await sharedPrefs.getString("id"))!);
+      Utility.user.Username= (await sharedPrefs.getString("username"))!;
+      Utility.user.Password=(await sharedPrefs.getString("password"))!;
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>const HomePage()));
+    }
+  }
+  
   final loginFieldController = TextEditingController(text: "axl");
   final passwordFieldController = TextEditingController(text:"12345678");
   Future<void> login() async{
-
     final response = await http.post(Uri.http('127.0.0.1:1234','/user/login'),headers: <String,String>{
       "Access-Control-Allow-Origin": "*",
       'Content-Type': 'application/json;charset=UTF-8',
@@ -60,9 +76,12 @@ class _MyHomePageState extends State<MyHomePage> {
       Utility.user.id=int.parse(response.body);
       Utility.user.Username=loginFieldController.text;
       Utility.user.Password=md5.convert(utf8.encode(passwordFieldController.text)).toString();
+      final sharedPrefs = await SharedPreferences.getInstance();
+      sharedPrefs.setString("id", Utility.user.id.toString());
+      sharedPrefs.setString("username", Utility.user.Username.toString());
+      sharedPrefs.setString("password", Utility.user.Password.toString());
       Navigator.push(context, MaterialPageRoute(builder: (context)=>const HomePage()));
     }else{
-      print("wrong something");
       showToast("Неверное имя пользователя или пароль!",position: ToastPosition.bottom,);
     }
   }
@@ -79,10 +98,15 @@ class _MyHomePageState extends State<MyHomePage> {
                   margin: const EdgeInsets.only(top: 150),
                   child: Column(
                     children: [
+                      Image.asset("assets/images/logo.png"),
+                      Text("TaskMate",style: TextStyle(
+                        fontSize: 20
+                      ),),
+                      SizedBox(height: 100,),
                       WidgetTemplates.getTextField(loginFieldController, "Имя пользователя"),
                       SizedBox(height: 25,),
                       PasswordTextField(passwordFieldController,true, 'Пароль'),
-                      SizedBox(height: 250,),
+                      SizedBox(height: 100,),
                       Container(
                           width: 350,
                           height: 60,

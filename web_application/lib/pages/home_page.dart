@@ -1,4 +1,7 @@
+import 'dart:html';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:side_navigation/side_navigation.dart';
 import 'package:web_application/Pages/calendar_page.dart';
 
@@ -53,7 +56,11 @@ class _HomePageState extends State<HomePage> {
                 ),
                 footer:SideNavigationBarFooter(
                   label: ListTile(
-                    onTap: (){
+                    onTap: ()async{
+                      final prefs = await SharedPreferences.getInstance();
+                      prefs.remove("id");
+                      prefs.remove("username");
+                      prefs.remove("password");
                       Navigator.of(context).pop();
                     },
                     leading: Icon(Icons.exit_to_app,color: MyColors.fourthAccent,),
